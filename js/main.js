@@ -295,7 +295,6 @@ function toggleSearch() {
 
 // ─── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  await initAuthUI();
   await loadHeroSlider();
   await loadTrendingGames();
   await loadPopularGames();
@@ -309,9 +308,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('sliderPrev')?.addEventListener('click', () => goToSlide(currentSlide - 1));
   document.getElementById('sliderNext')?.addEventListener('click', () => goToSlide(currentSlide + 1));
 
-  // Auth form listeners
-  document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
-  document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
 
   // Search input
   const searchInput = document.getElementById('searchInput');
@@ -320,8 +316,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
 
-  // Close modal backdrop
-  document.getElementById('authModal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeAuthModal();
-  });
 });

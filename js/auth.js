@@ -1,51 +1,84 @@
 // ============================================================
-// KAIZO CASTLE - AUTH MODULE (FIXED)
+// KAIZO CASTLE - AUTH MODULE (FULLY FIXED v3)
 // ============================================================
+
+// ─── Cek konfigurasi Supabase ──────────────────────────────
+function isSupabaseConfigured() {
+  return SUPABASE_URL !== 'https://YOUR_PROJECT.supabase.co' &&
+         SUPABASE_ANON_KEY !== 'YOUR_ANON_KEY_HERE';
+}
 
 // ─── Register ──────────────────────────────────────────────
 async function register(email, password, username) {
-  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
-  if (error) throw error;
-  if (!data.user) throw new Error('Registration failed. Please try again.');
-
-  // Try to insert user profile.
-  // If email confirmation is ON in Supabase, session won't exist yet,
-  // so we store pending profile in localStorage and insert on first login.
-  const profile = { id: data.user.id, username, email, xp: 0, level: 1, coins: 0, role: 'user' };
-
-  if (data.session) {
-    // Email confirmation OFF → session available immediately
-    const { error: dbError } = await supabase.from('users').insert(profile);
-    if (dbError && dbError.code !== '23505') throw dbError; // ignore duplicate
-  } else {
-    // Email confirmation ON → save pending, insert after login
-    localStorage.setItem('kc_pending_profile', JSON.stringify(profile));
+  if (!isSupabaseConfigured()) {
+    throw new Error('Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY di js/supabase.js');
   }
+  if (!username || username.trim().length < 3) throw new Error('Username minimal 3 karakter.');
+  if (password.length < 6) throw new Error('Password minimal 6 karakter.');
 
-  return data;
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: { data: { username: username.trim() } }
+  });
+
+  if (error) throw error;
+  if (!data.user) throw new Error('Registrasi gagal. Coba lagi.');
+
+  // Upsert profil — trigger Supabase juga akan buat profil,
+  // upsert mencegah duplicate conflict
+  await supabase.from('users').upsert({
+    id: data.user.id,
+    username: username.trim(),
+    email: email.trim(),
+    xp: 0, level: 1, coins: 0, role: 'user'
+  }, { onConflict: 'id', ignoreDuplicates: true });
+
+  return {
+    user: data.user,
+    session: data.session,
+    needsConfirmation: !data.session  // true = email konfirmasi ON
+  };
 }
 
 // ─── Login ─────────────────────────────────────────────────
 async function login(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
+  if (!isSupabaseConfigured()) {
+    throw new Error('Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY di js/supabase.js');
+  }
 
-  // If there's a pending profile from registration, insert it now
-  const pending = localStorage.getItem('kc_pending_profile');
-  if (pending && data.session) {
-    try {
-      const profile = JSON.parse(pending);
-      // Make sure it matches the logged in user
-      if (profile.email === email) {
-        const { error: dbError } = await supabase.from('users').insert(profile);
-        if (!dbError || dbError.code === '23505') {
-          // Success or already exists — either way remove pending
-          localStorage.removeItem('kc_pending_profile');
-        }
-      }
-    } catch (e) {
-      localStorage.removeItem('kc_pending_profile');
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(), password
+  });
+
+  if (error) {
+    if (error.message.toLowerCase().includes('email not confirmed') ||
+        error.message.toLowerCase().includes('email_not_confirmed')) {
+      throw new Error('❌ Email belum dikonfirmasi. Cek inbox/spam.\n\nTip: Atau matikan konfirmasi email di Supabase → Authentication → Providers → Email → disable "Confirm email".');
     }
+    if (error.message.toLowerCase().includes('invalid login credentials')) {
+      throw new Error('Email atau password salah.');
+    }
+    throw error;
+  }
+
+  // Validasi session benar-benar ada
+  if (!data.session) {
+    throw new Error('Login gagal — session tidak terbuat. Pastikan email sudah dikonfirmasi.');
+  }
+
+  // Pastikan profil ada di tabel users, buat jika belum ada
+  const { data: existingUser } = await supabase
+    .from('users').select('id').eq('id', data.session.user.id).single();
+
+  if (!existingUser) {
+    const username = data.session.user.user_metadata?.username || email.split('@')[0];
+    await supabase.from('users').upsert({
+      id: data.session.user.id,
+      username,
+      email: email.trim(),
+      xp: 0, level: 1, coins: 0, role: 'user'
+    }, { onConflict: 'id', ignoreDuplicates: true });
   }
 
   return data;
@@ -54,29 +87,32 @@ async function login(email, password) {
 // ─── Logout ────────────────────────────────────────────────
 async function logout() {
   await supabase.auth.signOut();
-  window.location.reload();
+  window.location.href = 'index.html';
 }
 
-// ─── Update Navbar Based on Auth State ─────────────────────
+// ─── Navbar Auth State ─────────────────────────────────────
 async function initAuthUI() {
   const profileBtn = document.getElementById('profileBtn');
   const devIcon = document.getElementById('devIcon');
   if (!profileBtn) return;
 
-  // Always make profile button visible with fallback icon
   profileBtn.innerHTML = `👤`;
+  profileBtn.style.cursor = 'pointer';
   profileBtn.onclick = () => openAuthModal('login');
   if (devIcon) devIcon.style.display = 'none';
+
+  if (!isSupabaseConfigured()) return;
 
   try {
     const user = await getCurrentUser();
     if (user) {
+      const initial = (user.username || 'U').charAt(0).toUpperCase();
       profileBtn.innerHTML = `
         <div class="user-avatar-wrap">
-          <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
-          <span class="user-xp-badge">${user.xp} XP</span>
+          <div class="user-avatar">${initial}</div>
+          <span class="user-xp-badge">${user.xp || 0} XP</span>
         </div>`;
-      profileBtn.onclick = () => openUserMenu(user);
+      profileBtn.onclick = (e) => { e.stopPropagation(); openUserMenu(user); };
 
       if (user.role === 'developer' && devIcon) {
         devIcon.style.display = 'flex';
@@ -84,17 +120,21 @@ async function initAuthUI() {
       }
     }
   } catch (err) {
-    // Session error — keep default login button, don't crash
-    console.warn('Auth init error:', err.message);
+    console.warn('Auth init:', err.message);
   }
 }
 
-// ─── Auth Modal ────────────────────────────────────────────
+// ─── Modal ─────────────────────────────────────────────────
 function openAuthModal(tab = 'login') {
   const modal = document.getElementById('authModal');
   if (!modal) return;
   modal.classList.add('active');
   switchAuthTab(tab);
+  // Reset error messages
+  const le = document.getElementById('loginError');
+  const re = document.getElementById('registerError');
+  if (le) le.textContent = '';
+  if (re) re.textContent = '';
 }
 
 function closeAuthModal() {
@@ -109,56 +149,97 @@ function switchAuthTab(tab) {
   document.querySelector(`.auth-form[data-form="${tab}"]`)?.classList.add('active');
 }
 
-// ─── Login Form Submit ─────────────────────────────────────
+// ─── Login Submit ───────────────────────────────────────────
 async function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
+  e.stopPropagation();
+
+  const emailEl = document.getElementById('loginEmail');
+  const passEl  = document.getElementById('loginPassword');
+  const btn     = document.getElementById('loginBtn');
+  const errEl   = document.getElementById('loginError');
+  if (!emailEl || !passEl || !btn || !errEl) return;
+
+  const email    = emailEl.value.trim();
+  const password = passEl.value;
+
+  if (!email || !password) {
+    errEl.style.color = '#ff2d55';
+    errEl.textContent = 'Email dan password wajib diisi.';
+    return;
+  }
 
   btn.disabled = true;
-  btn.textContent = 'Logging in...';
-  err.textContent = '';
+  btn.textContent = 'Loading...';
+  errEl.textContent = '';
 
   try {
     await login(email, password);
     closeAuthModal();
     window.location.reload();
-  } catch (error) {
-    err.textContent = error.message;
+  } catch (err) {
+    errEl.style.color = '#ff2d55';
+    errEl.style.whiteSpace = 'pre-line';
+    errEl.textContent = err.message || 'Login gagal.';
     btn.disabled = false;
     btn.textContent = 'Login';
   }
 }
 
-// ─── Register Form Submit ──────────────────────────────────
+// ─── Register Submit ────────────────────────────────────────
 async function handleRegister(e) {
   e.preventDefault();
-  const email = document.getElementById('regEmail').value;
-  const username = document.getElementById('regUsername').value;
-  const password = document.getElementById('regPassword').value;
-  const btn = document.getElementById('registerBtn');
-  const err = document.getElementById('registerError');
+  e.stopPropagation();
+
+  const usernameEl = document.getElementById('regUsername');
+  const emailEl    = document.getElementById('regEmail');
+  const passEl     = document.getElementById('regPassword');
+  const btn        = document.getElementById('registerBtn');
+  const errEl      = document.getElementById('registerError');
+  if (!usernameEl || !emailEl || !passEl || !btn || !errEl) return;
+
+  const username = usernameEl.value.trim();
+  const email    = emailEl.value.trim();
+  const password = passEl.value;
+
+  if (!username || !email || !password) {
+    errEl.style.color = '#ff2d55';
+    errEl.textContent = 'Semua field wajib diisi.';
+    return;
+  }
 
   btn.disabled = true;
-  btn.textContent = 'Creating...';
-  err.textContent = '';
+  btn.textContent = 'Mendaftar...';
+  errEl.textContent = '';
 
   try {
-    await register(email, password, username);
-    err.style.color = '#00d4ff';
-    err.textContent = 'Account created! Check your email to confirm.';
-    btn.textContent = 'Done!';
-  } catch (error) {
-    err.style.color = '#ff2d55';
-    err.textContent = error.message;
+    const result = await register(email, password, username);
+
+    if (result.needsConfirmation) {
+      // Email konfirmasi ON — suruh user cek email dulu
+      errEl.style.color = '#00d4ff';
+      errEl.textContent = '✅ Akun dibuat! Cek email kamu untuk konfirmasi, lalu login di sini.';
+      btn.textContent = 'Cek Email';
+      btn.disabled = false;
+      usernameEl.value = '';
+      emailEl.value = '';
+      passEl.value = '';
+    } else {
+      // Email konfirmasi OFF — langsung aktif, reload
+      errEl.style.color = '#00ff88';
+      errEl.textContent = '✅ Berhasil! Selamat datang, ' + username + '!';
+      btn.textContent = 'Berhasil!';
+      setTimeout(() => { closeAuthModal(); window.location.reload(); }, 900);
+    }
+  } catch (err) {
+    errEl.style.color = '#ff2d55';
+    errEl.textContent = err.message || 'Registrasi gagal.';
     btn.disabled = false;
-    btn.textContent = 'Register';
+    btn.textContent = 'Daftar';
   }
 }
 
-// ─── User Menu Dropdown ────────────────────────────────────
+// ─── User Menu Dropdown ─────────────────────────────────────
 function openUserMenu(user) {
   const existing = document.getElementById('userMenu');
   if (existing) { existing.remove(); return; }
@@ -168,16 +249,53 @@ function openUserMenu(user) {
   menu.className = 'user-menu';
   menu.innerHTML = `
     <div class="user-menu-header">
-      <div class="um-avatar">${user.username.charAt(0).toUpperCase()}</div>
+      <div class="um-avatar">${(user.username || 'U').charAt(0).toUpperCase()}</div>
       <div>
         <div class="um-name">${user.username}</div>
-        <div class="um-level">Level ${user.level} · ${user.xp} XP</div>
+        <div class="um-level">Level ${user.level || 1} · ${user.xp || 0} XP</div>
       </div>
     </div>
     <div class="user-menu-item" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</div>
     <div class="user-menu-item" onclick="logout()">🚪 Logout</div>
   `;
 
-  document.getElementById('profileBtn').appendChild(menu);
-  setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 10);
+  const profileBtn = document.getElementById('profileBtn');
+  profileBtn.style.position = 'relative';
+  profileBtn.appendChild(menu);
+
+  setTimeout(() => {
+    document.addEventListener('click', function handler(e) {
+      if (!menu.contains(e.target) && e.target !== profileBtn) {
+        menu.remove();
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 50);
 }
+
+// ─── Init semua listeners ───────────────────────────────────
+function initAuthListeners() {
+  const loginForm    = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+
+  if (loginForm) {
+    loginForm.onsubmit = handleLogin; // pakai onsubmit, tidak bisa double attach
+  }
+  if (registerForm) {
+    registerForm.onsubmit = handleRegister;
+  }
+
+  // Backdrop klik
+  const authModal = document.getElementById('authModal');
+  if (authModal) {
+    authModal.addEventListener('click', function(e) {
+      if (e.target === this) closeAuthModal();
+    });
+  }
+}
+
+// ─── Run saat DOM ready ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initAuthListeners();
+  initAuthUI();
+});
