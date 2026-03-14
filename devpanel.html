@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Panel — Kaizo Castle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-placeholder">KAIZO CASTLE</div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">← Back to Site</a>
+    </div>
+    <div class="nav-actions">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--red)">⚙️ DEV PANEL</span>
+      <button class="nav-btn" id="profileBtn" title="Profile">👤</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── ACCESS GUARD ────────────────────────────────────────── -->
+<div id="accessDenied" class="page-wrap" style="display:none;text-align:center;padding:80px 20px">
+  <div style="font-size:64px;margin-bottom:20px">🔒</div>
+  <h2 style="font-family:'Orbitron',sans-serif;color:var(--red);margin-bottom:12px">Access Denied</h2>
+  <p style="color:var(--text-dim)">You must be logged in as a Developer to access this panel.</p>
+  <div style="margin-top:24px">
+    <button class="btn-dp" onclick="openAuthModal('login')">Login</button>
+  </div>
+</div>
+
+<!-- ─── DEVPANEL CONTENT ─────────────────────────────────────── -->
+<div id="devContent" class="page-wrap" style="display:none">
+  <div class="devpanel-layout">
+
+    <!-- Sidebar -->
+    <aside class="devpanel-sidebar">
+      <div class="dp-nav-title">Dev Panel</div>
+      <div class="dp-nav-item active" onclick="showSection('assets')"><span>🖼️</span> Assets</div>
+      <div class="dp-nav-item" onclick="showSection('banners')"><span>🎠</span> Banners</div>
+      <div class="dp-nav-item" onclick="showSection('games')"><span>🎮</span> Games</div>
+      <div class="dp-nav-item" onclick="showSection('books')"><span>📚</span> Books</div>
+      <div class="dp-nav-item" onclick="showSection('users')"><span>👥</span> Users & XP</div>
+      <div class="dp-nav-item" onclick="showSection('leaderboard')"><span>🏆</span> Leaderboard</div>
+      <div class="dp-nav-item" onclick="showSection('theme')"><span>🎨</span> Theme</div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="devpanel-main">
+
+      <!-- ─── ASSETS ─────────────────────────────────────────── -->
+      <div id="section-assets" class="dp-section active">
+        <div class="dp-section-title">🖼️ Site Assets</div>
+
+        <!-- Logo -->
+        <div class="dp-card">
+          <div class="dp-card-title">Website Logo</div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+            <div>
+              <div class="dp-img-preview" style="width:220px;padding-top:0;height:60px">
+                <img id="logoPreview" src="" alt="" style="height:100%;width:100%;object-fit:contain;display:none">
+                <div class="dp-img-placeholder" id="logoPlaceholder"><span>🖼️</span>Empty</div>
+              </div>
+              <div class="dp-actions">
+                <label class="btn-dp" style="cursor:pointer">
+                  📁 Upload Logo
+                  <input type="file" id="logoUpload" accept="image/*" style="display:none" onchange="uploadAsset('logos','logo',this)">
+                </label>
+                <button class="btn-dp btn-dp-red" onclick="deleteAsset('logos','logo')">🗑️ Remove</button>
+              </div>
+            </div>
+            <div style="color:var(--text-dim);font-size:13px;padding-top:8px">
+              <p>Recommended: PNG with transparent background</p>
+              <p style="margin-top:6px">Size: 200×50px or similar wide format</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Icons -->
+        <div class="dp-card">
+          <div class="dp-card-title">Navigation Icons</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div id="iconSlot-search" class="icon-upload-slot">
+              <div class="dp-img-preview" style="width:80px;padding-top:0;height:80px">
+                <img id="icon-search-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:none">
+                <div class="dp-img-placeholder"><span style="font-size:24px">🔍</span><span style="font-size:10px">Search</span></div>
+              </div>
+              <label class="btn-dp mt-8" style="cursor:pointer;font-size:11px;padding:6px 10px">
+                Upload <input type="file" accept="image/*" style="display:none" onchange="uploadAsset('icons','search',this)">
+              </label>
+            </div>
+            <div class="icon-upload-slot">
+              <div class="dp-img-preview" style="width:80px;padding-top:0;height:80px">
+                <img id="icon-profile-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:none">
+                <div class="dp-img-placeholder"><span style="font-size:24px">👤</span><span style="font-size:10px">Profile</span></div>
+              </div>
+              <label class="btn-dp mt-8" style="cursor:pointer;font-size:11px;padding:6px 10px">
+                Upload <input type="file" accept="image/*" style="display:none" onchange="uploadAsset('icons','profile',this)">
+              </label>
+            </div>
+            <div class="icon-upload-slot">
+              <div class="dp-img-preview" style="width:80px;padding-top:0;height:80px">
+                <img id="icon-dev-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:none">
+                <div class="dp-img-placeholder"><span style="font-size:24px">⚙️</span><span style="font-size:10px">Dev</span></div>
+              </div>
+              <label class="btn-dp mt-8" style="cursor:pointer;font-size:11px;padding:6px 10px">
+                Upload <input type="file" accept="image/*" style="display:none" onchange="uploadAsset('icons','dev',this)">
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="assetsStatus" class="status-bar"></div>
+      </div>
+
+      <!-- ─── BANNERS ────────────────────────────────────────── -->
+      <div id="section-banners" class="dp-section">
+        <div class="dp-section-title">🎠 Hero Banners</div>
+        <div id="bannersStatus" class="status-bar"></div>
+
+        <div class="dp-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="dp-card-title" style="margin-bottom:0">Banner List</div>
+            <button class="btn-dp btn-dp-green" onclick="openBannerModal()">+ Add Banner</button>
+          </div>
+          <div id="bannersList"></div>
+        </div>
+      </div>
+
+      <!-- ─── GAMES ──────────────────────────────────────────── -->
+      <div id="section-games" class="dp-section">
+        <div class="dp-section-title">🎮 Games Manager</div>
+        <div id="gamesStatus" class="status-bar"></div>
+
+        <div class="dp-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="dp-card-title" style="margin-bottom:0">Games List</div>
+            <button class="btn-dp btn-dp-green" onclick="openGameModal()">+ Add Game</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="dp-table">
+              <thead>
+                <tr>
+                  <th>Image</th><th>Title</th><th>Category</th><th>Rating</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="gamesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── BOOKS ──────────────────────────────────────────── -->
+      <div id="section-books" class="dp-section">
+        <div class="dp-section-title">📚 Books Manager</div>
+        <div id="booksStatus" class="status-bar"></div>
+
+        <div class="dp-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="dp-card-title" style="margin-bottom:0">Books List</div>
+            <button class="btn-dp btn-dp-green" onclick="openBookModal()">+ Add Book</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="dp-table">
+              <thead>
+                <tr>
+                  <th>Cover</th><th>Title</th><th>Category</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="booksTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── USERS & XP ─────────────────────────────────────── -->
+      <div id="section-users" class="dp-section">
+        <div class="dp-section-title">👥 Users & XP</div>
+        <div id="usersStatus" class="status-bar"></div>
+
+        <div class="dp-card">
+          <div class="dp-card-title">Grant XP to Players</div>
+          <div id="userXpList"></div>
+        </div>
+      </div>
+
+      <!-- ─── LEADERBOARD ────────────────────────────────────── -->
+      <div id="section-leaderboard" class="dp-section">
+        <div class="dp-section-title">🏆 Leaderboard Control</div>
+        <div id="lbStatus" class="status-bar"></div>
+
+        <div class="dp-card">
+          <div class="dp-card-title">Current Rankings</div>
+          <div id="lbAdminList"></div>
+        </div>
+        <div class="dp-card">
+          <div class="dp-card-title">Reset / Wipe Leaderboard</div>
+          <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px">
+            ⚠️ This will set all player XP to 0. This cannot be undone.
+          </p>
+          <button class="btn-dp btn-dp-red" onclick="confirmWipeLeaderboard()">🗑️ Wipe All XP</button>
+        </div>
+      </div>
+
+      <!-- ─── THEME ──────────────────────────────────────────── -->
+      <div id="section-theme" class="dp-section">
+        <div class="dp-section-title">🎨 Theme Control</div>
+        <div id="themeStatus" class="status-bar"></div>
+
+        <div class="dp-card">
+          <div class="dp-card-title">Color Variables</div>
+          <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px">
+            Changes apply immediately on this page. Save to persist via localStorage.
+          </p>
+          <div class="color-swatch-grid">
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-cyan" value="#00d4ff"
+                oninput="applyColor('--cyan',this.value)">
+              <label>Accent Cyan</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-red" value="#ff2d55"
+                oninput="applyColor('--red',this.value)">
+              <label>Accent Red</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-gold" value="#ffd700"
+                oninput="applyColor('--gold',this.value)">
+              <label>XP Gold</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-bg-deep" value="#070b16"
+                oninput="applyColor('--bg-deep',this.value)">
+              <label>BG Deep</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-bg-card" value="#0d1526"
+                oninput="applyColor('--bg-card',this.value)">
+              <label>Card BG</label>
+            </div>
+          </div>
+          <div class="dp-actions" style="margin-top:20px">
+            <button class="btn-dp btn-dp-green" onclick="saveTheme()">💾 Save Theme</button>
+            <button class="btn-dp btn-dp-red" onclick="resetTheme()">↩️ Reset Default</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /devpanel-main -->
+  </div><!-- /devpanel-layout -->
+</div><!-- /devContent -->
+
+<!-- ─── MODALS ───────────────────────────────────────────────── -->
+
+<!-- Banner Modal -->
+<div id="bannerModal" class="dp-modal">
+  <div class="dp-modal-box">
+    <div class="dp-modal-title">
+      <span id="bannerModalTitle">Add Banner</span>
+      <button class="dp-close-btn" onclick="closeDpModal('bannerModal')">✕</button>
+    </div>
+    <div class="dp-form">
+      <input type="hidden" id="bannerId">
+      <div class="form-group">
+        <label class="form-label">Banner Title *</label>
+        <input class="form-input" type="text" id="bannerTitle" placeholder="e.g. Welcome to Kaizo Castle">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input class="form-input" type="text" id="bannerDesc" placeholder="Short subtitle...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Button Link</label>
+        <input class="form-input" type="text" id="bannerLink" placeholder="games.html or full URL">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Banner Image</label>
+        <div class="dp-img-preview" style="padding-top:40%">
+          <img id="bannerImgPreview" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <div class="dp-img-placeholder" id="bannerImgPH"><span>🖼️</span>No image</div>
+        </div>
+        <label class="btn-dp mt-8" style="cursor:pointer">
+          📁 Upload Image
+          <input type="file" id="bannerImgFile" accept="image/*" style="display:none" onchange="previewImg(this,'bannerImgPreview','bannerImgPH')">
+        </label>
+      </div>
+      <div class="dp-actions">
+        <button class="btn-dp btn-dp-green" onclick="saveBanner()">💾 Save Banner</button>
+        <button class="btn-dp" onclick="closeDpModal('bannerModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Game Modal -->
+<div id="gameModal" class="dp-modal">
+  <div class="dp-modal-box">
+    <div class="dp-modal-title">
+      <span id="gameModalTitle">Add Game</span>
+      <button class="dp-close-btn" onclick="closeDpModal('gameModal')">✕</button>
+    </div>
+    <div class="dp-form">
+      <input type="hidden" id="gameId">
+      <div class="form-group">
+        <label class="form-label">Game Title *</label>
+        <input class="form-input" type="text" id="gameTitle" placeholder="e.g. Kaizo Runner">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input class="form-input" type="text" id="gameCategory" placeholder="e.g. Action, Puzzle, RPG">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Game URL</label>
+        <input class="form-input" type="text" id="gameUrl" placeholder="https://game-iframe-url.com or path">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rating (0-10)</label>
+        <input class="form-input" type="number" id="gameRating" min="0" max="10" step="0.1" placeholder="8.5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Game Image</label>
+        <div class="dp-img-preview" style="padding-top:60%">
+          <img id="gameImgPreview" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <div class="dp-img-placeholder" id="gameImgPH"><span>🖼️</span>No image</div>
+        </div>
+        <label class="btn-dp mt-8" style="cursor:pointer">
+          📁 Upload Image
+          <input type="file" id="gameImgFile" accept="image/*" style="display:none" onchange="previewImg(this,'gameImgPreview','gameImgPH')">
+        </label>
+      </div>
+      <div class="dp-actions">
+        <button class="btn-dp btn-dp-green" onclick="saveGame()">💾 Save Game</button>
+        <button class="btn-dp" onclick="closeDpModal('gameModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Book Modal -->
+<div id="bookModal" class="dp-modal">
+  <div class="dp-modal-box">
+    <div class="dp-modal-title">
+      <span id="bookModalTitle">Add Book</span>
+      <button class="dp-close-btn" onclick="closeDpModal('bookModal')">✕</button>
+    </div>
+    <div class="dp-form">
+      <input type="hidden" id="bookId">
+      <div class="form-group">
+        <label class="form-label">Book Title *</label>
+        <input class="form-input" type="text" id="bookTitle" placeholder="e.g. Kaizo Lore Vol.1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <input class="form-input" type="text" id="bookCategory" placeholder="e.g. Lore, Guide, Tutorial">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Content (HTML allowed)</label>
+        <textarea id="bookContent" style="min-height:200px" placeholder="<h2>Chapter 1</h2><p>Content here...</p>"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover Image</label>
+        <div class="dp-img-preview" style="padding-top:100%;max-width:160px">
+          <img id="bookImgPreview" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <div class="dp-img-placeholder" id="bookImgPH"><span>📚</span>No cover</div>
+        </div>
+        <label class="btn-dp mt-8" style="cursor:pointer">
+          📁 Upload Cover
+          <input type="file" id="bookImgFile" accept="image/*" style="display:none" onchange="previewImg(this,'bookImgPreview','bookImgPH')">
+        </label>
+      </div>
+      <div class="dp-actions">
+        <button class="btn-dp btn-dp-green" onclick="saveBook()">💾 Save Book</button>
+        <button class="btn-dp" onclick="closeDpModal('bookModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-logo">KAIZO CASTLE</div>
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Login</button>
+      <button class="auth-tab" data-tab="register">Register</button>
+    </div>
+    <form id="loginForm" class="auth-form active" data-form="login">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" required>
+      </div>
+      <button class="btn-submit" type="submit" id="loginBtn">Login</button>
+      <div class="form-error" id="loginError"></div>
+    </form>
+    <form id="registerForm" class="auth-form" data-form="register">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input class="form-input" type="text" id="regUsername" placeholder="CoolPlayer99" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="regPassword" placeholder="Min 6 characters" required>
+      </div>
+      <button class="btn-submit" type="submit" id="registerBtn">Create Account</button>
+      <div class="form-error" id="registerError"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ─── SCRIPTS ────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+// ─── Access Guard ───────────────────────────────────────────
+async function checkDevAccess() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'developer') {
+    document.getElementById('accessDenied').style.display = 'block';
+  } else {
+    document.getElementById('devContent').style.display = 'block';
+    await loadAllDevData();
+  }
+  initAuthUI();
+}
+
+// ─── Section Switch ─────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.dp-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.dp-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ─── Toast Notification ─────────────────────────────────────
+function showToast(msg, type='success') {
+  let t = document.getElementById('devToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'devToast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function setStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `status-bar ${type}`;
+  el.textContent = msg;
+  setTimeout(() => el.className = 'status-bar', 4000);
+}
+
+// ─── Load All Dev Data ──────────────────────────────────────
+async function loadAllDevData() {
+  await Promise.all([
+    loadBannersAdmin(),
+    loadGamesAdmin(),
+    loadBooksAdmin(),
+    loadUsersAdmin(),
+    loadLbAdmin(),
+    loadSavedTheme()
+  ]);
+}
+
+// ─── Upload Asset (Logo/Icons) ──────────────────────────────
+async function uploadAsset(bucket, name, input) {
+  const file = input.files[0];
+  if (!file) return;
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `${name}.${ext}`;
+    const url = await uploadImage(bucket, file, path);
+    showToast(`${name} uploaded!`);
+    if (bucket === 'logos') {
+      const img = document.getElementById('logoPreview');
+      const ph = document.getElementById('logoPlaceholder');
+      if (img && ph) { img.src = url; img.style.display='block'; ph.style.display='none'; }
+    }
+  } catch (err) {
+    showToast(`Error: ${err.message}`, 'error');
+  }
+}
+
+async function deleteAsset(bucket, name) {
+  try {
+    const { data } = await supabase.storage.from(bucket).list();
+    const file = data?.find(f => f.name.startsWith(name));
+    if (file) await supabase.storage.from(bucket).remove([file.name]);
+    showToast(`${name} removed`);
+  } catch (err) {
+    showToast(`Error: ${err.message}`, 'error');
+  }
+}
+
+// ─── Image Preview Helper ───────────────────────────────────
+function previewImg(input, imgId, phId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(imgId);
+    const ph = document.getElementById(phId);
+    if (img) { img.src = e.target.result; img.style.display = 'block'; }
+    if (ph) ph.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── BANNERS ────────────────────────────────────────────────
+async function loadBannersAdmin() {
+  const { data: banners } = await supabase.from('banners').select('*').order('id');
+  const el = document.getElementById('bannersList');
+  if (!el) return;
+  if (!banners || banners.length === 0) {
+    el.innerHTML = `<div style="color:var(--text-dark);padding:20px;text-align:center">No banners yet. Add one!</div>`;
+    return;
+  }
+  el.innerHTML = banners.map(b => `
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px">
+      <img src="${b.image || PLACEHOLDER_IMG}" style="width:80px;height:48px;object-fit:cover;border-radius:4px" onerror="this.src='${PLACEHOLDER_IMG}'">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${b.title}</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:2px">${b.description || ''}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-dp" onclick="openBannerModal(${b.id})" style="padding:6px 12px;font-size:12px">✏️ Edit</button>
+        <button class="btn-dp btn-dp-red" onclick="deleteBanner(${b.id})" style="padding:6px 12px;font-size:12px">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+let editBannerData = null;
+async function openBannerModal(id=null) {
+  editBannerData = null;
+  document.getElementById('bannerId').value = '';
+  document.getElementById('bannerTitle').value = '';
+  document.getElementById('bannerDesc').value = '';
+  document.getElementById('bannerLink').value = '';
+  document.getElementById('bannerImgPreview').style.display = 'none';
+  document.getElementById('bannerImgPH').style.display = 'flex';
+  document.getElementById('bannerModalTitle').textContent = id ? 'Edit Banner' : 'Add Banner';
+
+  if (id) {
+    const { data } = await supabase.from('banners').select('*').eq('id', id).single();
+    if (data) {
+      editBannerData = data;
+      document.getElementById('bannerId').value = data.id;
+      document.getElementById('bannerTitle').value = data.title || '';
+      document.getElementById('bannerDesc').value = data.description || '';
+      document.getElementById('bannerLink').value = data.button_link || '';
+      if (data.image) {
+        document.getElementById('bannerImgPreview').src = data.image;
+        document.getElementById('bannerImgPreview').style.display = 'block';
+        document.getElementById('bannerImgPH').style.display = 'none';
+      }
+    }
+  }
+  document.getElementById('bannerModal').classList.add('open');
+}
+
+async function saveBanner() {
+  const id = document.getElementById('bannerId').value;
+  const title = document.getElementById('bannerTitle').value;
+  const description = document.getElementById('bannerDesc').value;
+  const button_link = document.getElementById('bannerLink').value;
+  const imgFile = document.getElementById('bannerImgFile').files[0];
+  if (!title) { showToast('Title is required', 'error'); return; }
+
+  let image = editBannerData?.image || null;
+  if (imgFile) {
+    const ext = imgFile.name.split('.').pop();
+    const path = `banner_${Date.now()}.${ext}`;
+    image = await uploadImage('banners', imgFile, path);
+  }
+
+  try {
+    if (id) {
+      await supabase.from('banners').update({ title, description, button_link, image }).eq('id', id);
+    } else {
+      await supabase.from('banners').insert({ title, description, button_link, image });
+    }
+    showToast('Banner saved!');
+    closeDpModal('bannerModal');
+    loadBannersAdmin();
+  } catch (err) {
+    showToast(`Error: ${err.message}`, 'error');
+  }
+}
+
+async function deleteBanner(id) {
+  if (!confirm('Delete this banner?')) return;
+  await supabase.from('banners').delete().eq('id', id);
+  showToast('Banner deleted');
+  loadBannersAdmin();
+}
+
+// ─── GAMES ──────────────────────────────────────────────────
+async function loadGamesAdmin() {
+  const { data: games } = await supabase.from('games').select('*').order('id');
+  const tbody = document.getElementById('gamesTableBody');
+  if (!tbody) return;
+  if (!games || games.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-dark);padding:30px">No games yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = games.map(g => `
+    <tr>
+      <td><img src="${g.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'"></td>
+      <td style="font-weight:600">${g.title}</td>
+      <td><span class="dp-badge dp-badge-blue">${g.category || '—'}</span></td>
+      <td style="color:var(--gold);font-family:'Share Tech Mono',monospace">★ ${g.rating || '?'}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-dp" onclick="openGameModal(${g.id})" style="padding:5px 10px;font-size:11px">✏️</button>
+          <button class="btn-dp btn-dp-red" onclick="deleteGame(${g.id})" style="padding:5px 10px;font-size:11px">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let editGameData = null;
+async function openGameModal(id=null) {
+  editGameData = null;
+  document.getElementById('gameId').value = '';
+  document.getElementById('gameTitle').value = '';
+  document.getElementById('gameCategory').value = '';
+  document.getElementById('gameUrl').value = '';
+  document.getElementById('gameRating').value = '';
+  document.getElementById('gameImgPreview').style.display = 'none';
+  document.getElementById('gameImgPH').style.display = 'flex';
+  document.getElementById('gameModalTitle').textContent = id ? 'Edit Game' : 'Add Game';
+
+  if (id) {
+    const { data } = await supabase.from('games').select('*').eq('id', id).single();
+    if (data) {
+      editGameData = data;
+      document.getElementById('gameId').value = data.id;
+      document.getElementById('gameTitle').value = data.title || '';
+      document.getElementById('gameCategory').value = data.category || '';
+      document.getElementById('gameUrl').value = data.game_url || '';
+      document.getElementById('gameRating').value = data.rating || '';
+      if (data.image) {
+        document.getElementById('gameImgPreview').src = data.image;
+        document.getElementById('gameImgPreview').style.display = 'block';
+        document.getElementById('gameImgPH').style.display = 'none';
+      }
+    }
+  }
+  document.getElementById('gameModal').classList.add('open');
+}
+
+async function saveGame() {
+  const id = document.getElementById('gameId').value;
+  const title = document.getElementById('gameTitle').value;
+  const category = document.getElementById('gameCategory').value;
+  const game_url = document.getElementById('gameUrl').value;
+  const rating = parseFloat(document.getElementById('gameRating').value) || null;
+  const imgFile = document.getElementById('gameImgFile').files[0];
+  if (!title) { showToast('Title is required', 'error'); return; }
+
+  let image = editGameData?.image || null;
+  if (imgFile) {
+    const ext = imgFile.name.split('.').pop();
+    const path = `game_${Date.now()}.${ext}`;
+    image = await uploadImage('games', imgFile, path);
+  }
+
+  try {
+    if (id) {
+      await supabase.from('games').update({ title, category, game_url, rating, image }).eq('id', id);
+    } else {
+      await supabase.from('games').insert({ title, category, game_url, rating, image });
+    }
+    showToast('Game saved!');
+    closeDpModal('gameModal');
+    loadGamesAdmin();
+  } catch (err) {
+    showToast(`Error: ${err.message}`, 'error');
+  }
+}
+
+async function deleteGame(id) {
+  if (!confirm('Delete this game?')) return;
+  await supabase.from('games').delete().eq('id', id);
+  showToast('Game deleted');
+  loadGamesAdmin();
+}
+
+// ─── BOOKS ──────────────────────────────────────────────────
+async function loadBooksAdmin() {
+  const { data: books } = await supabase.from('books').select('*').order('id');
+  const tbody = document.getElementById('booksTableBody');
+  if (!tbody) return;
+  if (!books || books.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-dark);padding:30px">No books yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = books.map(b => `
+    <tr>
+      <td><img src="${b.image || PLACEHOLDER_IMG}" onerror="this.src='${PLACEHOLDER_IMG}'" style="height:48px;width:32px;object-fit:cover"></td>
+      <td style="font-weight:600">${b.title}</td>
+      <td><span class="dp-badge dp-badge-blue">${b.category || '—'}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-dp" onclick="openBookModal(${b.id})" style="padding:5px 10px;font-size:11px">✏️</button>
+          <button class="btn-dp btn-dp-red" onclick="deleteBook(${b.id})" style="padding:5px 10px;font-size:11px">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let editBookData = null;
+async function openBookModal(id=null) {
+  editBookData = null;
+  document.getElementById('bookId').value = '';
+  document.getElementById('bookTitle').value = '';
+  document.getElementById('bookCategory').value = '';
+  document.getElementById('bookContent').value = '';
+  document.getElementById('bookImgPreview').style.display = 'none';
+  document.getElementById('bookImgPH').style.display = 'flex';
+  document.getElementById('bookModalTitle').textContent = id ? 'Edit Book' : 'Add Book';
+
+  if (id) {
+    const { data } = await supabase.from('books').select('*').eq('id', id).single();
+    if (data) {
+      editBookData = data;
+      document.getElementById('bookId').value = data.id;
+      document.getElementById('bookTitle').value = data.title || '';
+      document.getElementById('bookCategory').value = data.category || '';
+      document.getElementById('bookContent').value = data.content || '';
+      if (data.image) {
+        document.getElementById('bookImgPreview').src = data.image;
+        document.getElementById('bookImgPreview').style.display = 'block';
+        document.getElementById('bookImgPH').style.display = 'none';
+      }
+    }
+  }
+  document.getElementById('bookModal').classList.add('open');
+}
+
+async function saveBook() {
+  const id = document.getElementById('bookId').value;
+  const title = document.getElementById('bookTitle').value;
+  const category = document.getElementById('bookCategory').value;
+  const content = document.getElementById('bookContent').value;
+  const imgFile = document.getElementById('bookImgFile').files[0];
+  if (!title) { showToast('Title is required', 'error'); return; }
+
+  let image = editBookData?.image || null;
+  if (imgFile) {
+    const ext = imgFile.name.split('.').pop();
+    const path = `book_${Date.now()}.${ext}`;
+    image = await uploadImage('books', imgFile, path);
+  }
+
+  try {
+    if (id) {
+      await supabase.from('books').update({ title, category, content, image }).eq('id', id);
+    } else {
+      await supabase.from('books').insert({ title, category, content, image });
+    }
+    showToast('Book saved!');
+    closeDpModal('bookModal');
+    loadBooksAdmin();
+  } catch (err) {
+    showToast(`Error: ${err.message}`, 'error');
+  }
+}
+
+async function deleteBook(id) {
+  if (!confirm('Delete this book?')) return;
+  await supabase.from('books').delete().eq('id', id);
+  showToast('Book deleted');
+  loadBooksAdmin();
+}
+
+// ─── USERS & XP ─────────────────────────────────────────────
+async function loadUsersAdmin() {
+  const { data: users } = await supabase.from('users').select('id,username,xp,level').order('username');
+  const el = document.getElementById('userXpList');
+  if (!el) return;
+  if (!users || users.length === 0) {
+    el.innerHTML = `<div style="color:var(--text-dark);padding:20px;text-align:center">No users yet.</div>`;
+    return;
+  }
+  el.innerHTML = users.map(u => `
+    <div class="xp-grant-row">
+      <div class="xp-user">${u.username}</div>
+      <div class="xp-current">${u.xp} XP · Lv.${u.level || calcLevel(u.xp)}</div>
+      <input class="form-input xp-input" type="number" id="xp-${u.id}" placeholder="+ XP" min="0">
+      <button class="btn-dp" onclick="grantXP('${u.id}')" style="padding:7px 12px;font-size:12px">Grant</button>
+      <button class="btn-dp btn-dp-red" onclick="setXP('${u.id}',0)" style="padding:7px 12px;font-size:12px">Reset</button>
+    </div>
+  `).join('');
+}
+
+async function grantXP(userId) {
+  const input = document.getElementById(`xp-${userId}`);
+  const amount = parseInt(input.value);
+  if (!amount || amount <= 0) { showToast('Enter valid XP amount', 'error'); return; }
+
+  const { data: user } = await supabase.from('users').select('xp').eq('id', userId).single();
+  const newXp = (user?.xp || 0) + amount;
+  const newLevel = calcLevel(newXp);
+  await supabase.from('users').update({ xp: newXp, level: newLevel }).eq('id', userId);
+  showToast(`+${amount} XP granted!`);
+  input.value = '';
+  loadUsersAdmin();
+}
+
+async function setXP(userId, amount) {
+  if (!confirm(`Set XP to ${amount}?`)) return;
+  await supabase.from('users').update({ xp: amount, level: calcLevel(amount) }).eq('id', userId);
+  showToast('XP updated');
+  loadUsersAdmin();
+}
+
+// ─── LEADERBOARD ADMIN ───────────────────────────────────────
+async function loadLbAdmin() {
+  const { data: users } = await supabase
+    .from('users').select('username,xp,level')
+    .order('xp', { ascending: false }).limit(20);
+  const el = document.getElementById('lbAdminList');
+  if (!el) return;
+  if (!users || users.length === 0) {
+    el.innerHTML = `<div style="color:var(--text-dark);padding:20px;text-align:center">No players.</div>`;
+    return;
+  }
+  el.innerHTML = users.map((u, i) => `
+    <div class="lb-row" style="margin-bottom:6px">
+      <div class="lb-rank">${i < 3 ? ['🥇','🥈','🥉'][i] : `#${i+1}`}</div>
+      <div class="lb-avatar">${u.username.charAt(0).toUpperCase()}</div>
+      <div class="lb-user">
+        <span class="lb-name">${u.username}</span>
+        <span class="lb-level">Lv. ${u.level || calcLevel(u.xp)}</span>
+      </div>
+      <div class="lb-xp">${u.xp} <span>XP</span></div>
+    </div>
+  `).join('');
+}
+
+async function confirmWipeLeaderboard() {
+  if (!confirm('⚠️ This will reset ALL players XP to 0. Are you SURE?')) return;
+  if (!confirm('Last chance — this cannot be undone. Proceed?')) return;
+  await supabase.from('users').update({ xp: 0, level: 1 }).neq('id', '');
+  showToast('Leaderboard wiped!');
+  loadLbAdmin();
+}
+
+// ─── THEME ──────────────────────────────────────────────────
+function applyColor(varName, value) {
+  document.documentElement.style.setProperty(varName, value);
+}
+
+function saveTheme() {
+  const vars = ['--cyan','--red','--gold','--bg-deep','--bg-card'];
+  const theme = {};
+  vars.forEach(v => {
+    theme[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  });
+  localStorage.setItem('kc_theme', JSON.stringify(theme));
+  showToast('Theme saved! Will apply on all pages.');
+}
+
+function resetTheme() {
+  localStorage.removeItem('kc_theme');
+  const defaults = {
+    '--cyan':'#00d4ff','--red':'#ff2d55',
+    '--gold':'#ffd700','--bg-deep':'#070b16','--bg-card':'#0d1526'
+  };
+  Object.entries(defaults).forEach(([k,v]) => {
+    document.documentElement.style.setProperty(k, v);
+    const inputId = `color-${k.replace('--','')}`;
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = v;
+  });
+  showToast('Theme reset to default');
+}
+
+function loadSavedTheme() {
+  const saved = localStorage.getItem('kc_theme');
+  if (!saved) return;
+  try {
+    const theme = JSON.parse(saved);
+    Object.entries(theme).forEach(([k,v]) => {
+      document.documentElement.style.setProperty(k, v);
+      const inputId = `color-${k.replace('--','').replace(/-([a-z])/g, (_,c) => c)}`;
+      const inp = document.getElementById(inputId);
+      if (inp) inp.value = v;
+    });
+  } catch {}
+}
+
+// ─── Close Modal ─────────────────────────────────────────────
+function closeDpModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ─── Init ────────────────────────────────────────────────────
+checkDevAccess();
+</script>
+</body>
+</html>
