@@ -80,8 +80,8 @@
       <button class="modal-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="login">Login</button>
-      <button class="auth-tab" data-tab="register">Register</button>
+      <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Register</button>
     </div>
     <form id="loginForm" class="auth-form active" data-form="login">
       <div class="form-group">
