@@ -319,10 +319,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
   }
 
-  // Auth tabs
-  document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchAuthTab(tab.dataset.tab));
-  });
 
   // Close modal backdrop
   document.getElementById('authModal')?.addEventListener('click', function(e) {
