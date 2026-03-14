@@ -1,3 +1,7 @@
+// ============================================================
+// KAIZO CASTLE - SUPABASE CONFIG
+// ============================================================
+
 const SUPABASE_URL = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
 
@@ -39,12 +43,12 @@ function calcLevel(xp) {
   return Math.floor(Math.sqrt(xp / 100)) + 1;
 }
 
-// ─── Placeholder image (inline SVG base64) ─────────────────
+// ─── Placeholder image ─────────────────────────────────────
 const PLACEHOLDER_IMG = `data:image/svg+xml;base64,${btoa(`
 <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="300" fill="#0f1628"/>
   <rect x="2" y="2" width="396" height="296" fill="none" stroke="#1e2d4a" stroke-width="2" stroke-dasharray="8,4"/>
-  <text x="200" y="135" text-anchor="middle" fill="#1e3a5f" font-family="monospace" font-size="48">⬡</text>
+  <text x="200" y="135" text-anchor="middle" fill="#1e3a5f" font-family="monospace" font-size="48">&#x2B21;</text>
   <text x="200" y="175" text-anchor="middle" fill="#2a4a7f" font-family="monospace" font-size="13">NO IMAGE</text>
   <text x="200" y="195" text-anchor="middle" fill="#1e3a5f" font-family="monospace" font-size="10">Set via Dev Panel</text>
 </svg>`)}`;
