@@ -293,8 +293,24 @@ function toggleSearch() {
   }
 }
 
+
+// ─── Load Saved Theme (from Dev Panel) ────────────────────
+function loadSavedTheme() {
+  const saved = localStorage.getItem('kc_theme');
+  if (!saved) return;
+  try {
+    const theme = JSON.parse(saved);
+    Object.entries(theme).forEach(([k, v]) => {
+      if (v) document.documentElement.style.setProperty(k, v);
+    });
+  } catch(e) {
+    console.warn('Theme load error:', e);
+  }
+}
+
 // ─── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  loadSavedTheme(); // Apply saved theme immediately
   await loadHeroSlider();
   await loadTrendingGames();
   await loadPopularGames();
