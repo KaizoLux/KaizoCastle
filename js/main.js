@@ -2,6 +2,61 @@
 // KAIZO CASTLE - MAIN JS
 // ============================================================
 
+// ─── Theme System ──────────────────────────────────────────
+// Simpan & load HANYA hex colors. Glow dihitung otomatis.
+const THEME_VARS = ['--cyan','--red','--gold','--bg-deep','--bg-dark','--bg-card','--bg-card2','--border','--text','--text-dim'];
+
+function hexToRgba(hex, alpha) {
+  hex = (hex || '#000000').replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const r = parseInt(hex.slice(0,2),16)||0;
+  const g = parseInt(hex.slice(2,4),16)||0;
+  const b = parseInt(hex.slice(4,6),16)||0;
+  return 'rgba('+r+','+g+','+b+','+alpha+')';
+}
+
+function darkenHex(hex, factor) {
+  hex = (hex || '#000000').replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const r = Math.min(255, Math.round(parseInt(hex.slice(0,2),16)*factor));
+  const g = Math.min(255, Math.round(parseInt(hex.slice(2,4),16)*factor));
+  const b = Math.min(255, Math.round(parseInt(hex.slice(4,6),16)*factor));
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+function applyDerivedVars(root, cyan, red) {
+  if (cyan) {
+    root.style.setProperty('--cyan-dim',    darkenHex(cyan, 0.6));
+    root.style.setProperty('--glow-cyan',   '0 0 20px '+hexToRgba(cyan,0.33)+', 0 0 40px '+hexToRgba(cyan,0.13));
+    root.style.setProperty('--border-glow', hexToRgba(cyan, 0.2));
+  }
+  if (red) {
+    root.style.setProperty('--glow-red', '0 0 20px '+hexToRgba(red,0.33));
+  }
+}
+
+function loadSavedTheme() {
+  try {
+    const saved = localStorage.getItem('kc_theme');
+    if (!saved) return;
+    const theme = JSON.parse(saved);
+    const root = document.documentElement;
+    // Hanya apply hex values
+    THEME_VARS.forEach(function(k) {
+      if (theme[k] && theme[k].startsWith('#')) {
+        root.style.setProperty(k, theme[k]);
+      }
+    });
+    // Hitung ulang derived vars dari cyan & red yang tersimpan
+    applyDerivedVars(root, theme['--cyan'], theme['--red']);
+  } catch(e) {
+    console.warn('Theme load error:', e);
+  }
+}
+
+// Jalankan theme sesegera mungkin
+loadSavedTheme();
+
 // ─── Hero Slider ───────────────────────────────────────────
 let sliderData = [];
 let currentSlide = 0;
@@ -18,9 +73,9 @@ async function loadHeroSlider() {
   if (!track) return;
 
   sliderData = banners && banners.length > 0 ? banners : [
-    { id: 1, title: 'Welcome to Kaizo Castle', description: 'Your ultimate gaming portal. Play, learn, and conquer.', image: PLACEHOLDER_IMG, button_link: 'games.html' },
-    { id: 2, title: 'Explore the Library', description: 'Read books, gain knowledge, earn XP.', image: PLACEHOLDER_IMG, button_link: 'library.html' },
-    { id: 3, title: 'Climb the Leaderboard', description: 'Compete with players worldwide.', image: PLACEHOLDER_IMG, button_link: 'leaderboard.html' }
+    { id: 1, title: 'Welcome to Kaizo Castle', description: 'Your ultimate gaming portal. Play, learn, and conquer.', image: null, button_link: 'games.html' },
+    { id: 2, title: 'Explore the Library', description: 'Read books, gain knowledge, earn XP.', image: null, button_link: 'library.html' },
+    { id: 3, title: 'Climb the Leaderboard', description: 'Compete with players worldwide.', image: null, button_link: 'leaderboard.html' }
   ];
 
   track.innerHTML = sliderData.map((b, i) => `
@@ -68,41 +123,25 @@ function startSliderAuto() {
 async function loadTrendingGames() {
   const el = document.getElementById('trendingGames');
   if (!el) return;
-
-  const { data: games } = await supabase
-    .from('games')
-    .select('*')
-    .order('rating', { ascending: false })
-    .limit(6);
-
+  const { data: games } = await supabase.from('games').select('*').order('rating', { ascending: false }).limit(6);
   renderGameCards(el, games);
 }
 
-// ─── Popular Games ─────────────────────────────────────────
 async function loadPopularGames() {
   const el = document.getElementById('popularGames');
   if (!el) return;
-
-  const { data: games } = await supabase
-    .from('games')
-    .select('*')
-    .order('id', { ascending: false })
-    .limit(8);
-
+  const { data: games } = await supabase.from('games').select('*').order('id', { ascending: false }).limit(8);
   renderGameCards(el, games);
 }
 
-// ─── All Games (games.html) ────────────────────────────────
+// ─── All Games ─────────────────────────────────────────────
 let allGames = [];
-let activeCategory = 'All';
 
 async function loadAllGames() {
   const el = document.getElementById('allGames');
   if (!el) return;
-
   const { data: games } = await supabase.from('games').select('*').order('id');
   allGames = games || [];
-
   buildCategoryFilter(allGames);
   renderGameCards(el, allGames);
 }
@@ -110,70 +149,64 @@ async function loadAllGames() {
 function buildCategoryFilter(games) {
   const filterEl = document.getElementById('categoryFilter');
   if (!filterEl) return;
-  const cats = ['All', ...new Set((games || []).map(g => g.category).filter(Boolean))];
+  const cats = ['All', ...new Set((games||[]).map(g=>g.category).filter(Boolean))];
   filterEl.innerHTML = cats.map(c =>
-    `<button class="cat-btn ${c === 'All' ? 'active' : ''}" onclick="filterGames('${c}')">${c}</button>`
+    `<button class="cat-btn ${c==='All'?'active':''}" onclick="filterGames('${c}')">${c}</button>`
   ).join('');
 }
 
 function filterGames(cat) {
-  activeCategory = cat;
-  document.querySelectorAll('.cat-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === cat);
-  });
-  const filtered = cat === 'All' ? allGames : allGames.filter(g => g.category === cat);
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.textContent===cat));
+  const filtered = cat==='All' ? allGames : allGames.filter(g=>g.category===cat);
   renderGameCards(document.getElementById('allGames'), filtered);
 }
 
 function renderGameCards(container, games) {
   if (!container) return;
-  if (!games || games.length === 0) {
+  if (!games || games.length===0) {
     container.innerHTML = `<div class="empty-state"><span>⬡</span><p>No games yet.<br>Add some in Dev Panel.</p></div>`;
     return;
   }
   container.innerHTML = games.map(g => `
-    <div class="game-card" onclick="openGame('${g.game_url || '#'}')">
+    <div class="game-card" onclick="openGame('${g.game_url||'#'}')">
       <div class="game-thumb">
-        <img src="${g.image || PLACEHOLDER_IMG}" alt="${g.title}" onerror="this.src='${PLACEHOLDER_IMG}'">
+        <img src="${g.image||PLACEHOLDER_IMG}" alt="${g.title}" onerror="this.src='${PLACEHOLDER_IMG}'">
         <div class="game-hover-overlay"><span>▶ Play</span></div>
       </div>
       <div class="game-info">
-        <span class="game-cat">${g.category || 'Game'}</span>
+        <span class="game-cat">${g.category||'Game'}</span>
         <h3 class="game-title">${g.title}</h3>
-        <div class="game-meta">
-          <span class="game-rating">★ ${g.rating || '?'}</span>
-        </div>
+        <div class="game-meta"><span class="game-rating">★ ${g.rating||'?'}</span></div>
       </div>
     </div>
   `).join('');
 }
 
 function openGame(url) {
-  if (url && url !== '#') window.open(url, '_blank');
+  if (url && url!=='#') window.open(url,'_blank');
 }
 
 // ─── Library ───────────────────────────────────────────────
 async function loadLibrary() {
   const el = document.getElementById('libraryBooks');
   if (!el) return;
-
   const { data: books } = await supabase.from('books').select('*').order('id');
   renderBookCards(el, books);
 }
 
 function renderBookCards(container, books) {
   if (!container) return;
-  if (!books || books.length === 0) {
+  if (!books||books.length===0) {
     container.innerHTML = `<div class="empty-state"><span>📚</span><p>No books yet.<br>Add some in Dev Panel.</p></div>`;
     return;
   }
   container.innerHTML = books.map(b => `
     <div class="book-card">
       <div class="book-cover">
-        <img src="${b.image || PLACEHOLDER_IMG}" alt="${b.title}" onerror="this.src='${PLACEHOLDER_IMG}'">
+        <img src="${b.image||PLACEHOLDER_IMG}" alt="${b.title}" onerror="this.src='${PLACEHOLDER_IMG}'">
       </div>
       <div class="book-info">
-        <span class="book-cat">${b.category || 'General'}</span>
+        <span class="book-cat">${b.category||'General'}</span>
         <h3 class="book-title">${b.title}</h3>
         <button class="btn-read" onclick="openBook(${b.id})">Read Now</button>
       </div>
@@ -181,9 +214,7 @@ function renderBookCards(container, books) {
   `).join('');
 }
 
-function openBook(id) {
-  window.location.href = `library.html?book=${id}`;
-}
+function openBook(id) { window.location.href = `library.html?book=${id}`; }
 
 // ─── Book Reader ───────────────────────────────────────────
 async function loadBookReader() {
@@ -191,10 +222,8 @@ async function loadBookReader() {
   const bookId = params.get('book');
   const readerEl = document.getElementById('bookReader');
   if (!bookId || !readerEl) return;
-
   const { data: book } = await supabase.from('books').select('*').eq('id', bookId).single();
   if (!book) return;
-
   readerEl.style.display = 'block';
   document.getElementById('bookListWrap').style.display = 'none';
   document.getElementById('readerTitle').textContent = book.title;
@@ -205,52 +234,35 @@ async function loadBookReader() {
 async function loadLeaderboard() {
   const el = document.getElementById('leaderboardList');
   if (!el) return;
-
-  const { data: users } = await supabase
-    .from('users')
-    .select('username, xp, level')
-    .order('xp', { ascending: false })
-    .limit(50);
-
-  if (!users || users.length === 0) {
+  const { data: users } = await supabase.from('users').select('username,xp,level').order('xp',{ascending:false}).limit(50);
+  if (!users||users.length===0) {
     el.innerHTML = `<div class="empty-state"><span>🏆</span><p>No players yet.</p></div>`;
     return;
   }
-
-  el.innerHTML = users.map((u, i) => `
-    <div class="lb-row ${i < 3 ? 'lb-top' : ''}">
-      <div class="lb-rank">
-        ${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
-      </div>
+  el.innerHTML = users.map((u,i) => `
+    <div class="lb-row ${i<3?'lb-top':''}">
+      <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</div>
       <div class="lb-avatar">${u.username.charAt(0).toUpperCase()}</div>
       <div class="lb-user">
         <span class="lb-name">${u.username}</span>
-        <span class="lb-level">Lv. ${u.level || calcLevel(u.xp)}</span>
+        <span class="lb-level">Lv. ${u.level||calcLevel(u.xp)}</span>
       </div>
       <div class="lb-xp">${u.xp} <span>XP</span></div>
     </div>
   `).join('');
 }
 
-// ─── Homepage Mini Leaderboard ─────────────────────────────
 async function loadMiniLeaderboard() {
   const el = document.getElementById('miniLeaderboard');
   if (!el) return;
-
-  const { data: users } = await supabase
-    .from('users')
-    .select('username, xp, level')
-    .order('xp', { ascending: false })
-    .limit(5);
-
-  if (!users || users.length === 0) {
+  const { data: users } = await supabase.from('users').select('username,xp,level').order('xp',{ascending:false}).limit(5);
+  if (!users||users.length===0) {
     el.innerHTML = `<div class="empty-state-sm">No players yet.</div>`;
     return;
   }
-
-  el.innerHTML = users.map((u, i) => `
+  el.innerHTML = users.map((u,i) => `
     <div class="mini-lb-row">
-      <span class="mini-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span>
+      <span class="mini-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span>
       <span class="mini-name">${u.username}</span>
       <span class="mini-xp">${u.xp} XP</span>
     </div>
@@ -259,21 +271,16 @@ async function loadMiniLeaderboard() {
 
 // ─── Search ────────────────────────────────────────────────
 async function handleSearch(query) {
-  if (!query || query.length < 2) return;
-  const { data: games } = await supabase
-    .from('games')
-    .select('*')
-    .ilike('title', `%${query}%`);
-
+  if (!query||query.length<2) return;
+  const { data: games } = await supabase.from('games').select('*').ilike('title',`%${query}%`);
   const resultsEl = document.getElementById('searchResults');
   if (!resultsEl) return;
-
-  if (!games || games.length === 0) {
+  if (!games||games.length===0) {
     resultsEl.innerHTML = `<div class="no-results">No results for "${query}"</div>`;
   } else {
     resultsEl.innerHTML = games.map(g => `
-      <div class="search-item" onclick="openGame('${g.game_url || '#'}')">
-        <img src="${g.image || PLACEHOLDER_IMG}" alt="${g.title}" onerror="this.src='${PLACEHOLDER_IMG}'">
+      <div class="search-item" onclick="openGame('${g.game_url||'#'}')">
+        <img src="${g.image||PLACEHOLDER_IMG}" alt="${g.title}" onerror="this.src='${PLACEHOLDER_IMG}'">
         <span>${g.title}</span>
       </div>
     `).join('');
@@ -281,36 +288,16 @@ async function handleSearch(query) {
   resultsEl.style.display = 'block';
 }
 
-// ─── Search Toggle ─────────────────────────────────────────
 function toggleSearch() {
   const bar = document.getElementById('searchBar');
   if (!bar) return;
   bar.classList.toggle('open');
-  if (bar.classList.contains('open')) {
-    document.getElementById('searchInput')?.focus();
-  } else {
-    document.getElementById('searchResults').style.display = 'none';
-  }
-}
-
-
-// ─── Load Saved Theme (from Dev Panel) ────────────────────
-function loadSavedTheme() {
-  const saved = localStorage.getItem('kc_theme');
-  if (!saved) return;
-  try {
-    const theme = JSON.parse(saved);
-    Object.entries(theme).forEach(([k, v]) => {
-      if (v) document.documentElement.style.setProperty(k, v);
-    });
-  } catch(e) {
-    console.warn('Theme load error:', e);
-  }
+  if (bar.classList.contains('open')) document.getElementById('searchInput')?.focus();
+  else document.getElementById('searchResults').style.display = 'none';
 }
 
 // ─── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  loadSavedTheme(); // Apply saved theme immediately
   await loadHeroSlider();
   await loadTrendingGames();
   await loadPopularGames();
@@ -320,16 +307,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadBookReader();
   await loadLeaderboard();
 
-  // Slider arrows
-  document.getElementById('sliderPrev')?.addEventListener('click', () => goToSlide(currentSlide - 1));
-  document.getElementById('sliderNext')?.addEventListener('click', () => goToSlide(currentSlide + 1));
+  document.getElementById('sliderPrev')?.addEventListener('click', () => goToSlide(currentSlide-1));
+  document.getElementById('sliderNext')?.addEventListener('click', () => goToSlide(currentSlide+1));
 
-
-  // Search input
   const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
-  }
-
-
+  if (searchInput) searchInput.addEventListener('input', e => handleSearch(e.target.value));
 });
