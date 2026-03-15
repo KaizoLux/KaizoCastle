@@ -1,25 +1,24 @@
 // ============================================================
-// KAIZO CASTLE - SUPABASE CONFIG
+// KAIZO CASTLE - SUPABASE CONFIG v5
 // ============================================================
 
 const SUPABASE_URL = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
 
-// Inisialisasi Supabase client dengan fallback
-let supabase;
-try {
-  if (window.supabase && window.supabase.createClient) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else if (window.supabaseJs && window.supabaseJs.createClient) {
-    supabase = window.supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else {
-    console.error('Supabase CDN gagal dimuat!');
-  }
-} catch(e) {
-  console.error('Supabase init error:', e);
+// Inisialisasi supabase — support semua versi CDN
+const supabase = (
+  (window.supabase && window.supabase.createClient)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : (window.supabaseJs && window.supabaseJs.createClient)
+    ? window.supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null
+);
+
+if (!supabase) {
+  console.error('KAIZO: Supabase gagal dimuat dari CDN!');
 }
 
-// Reset localStorage theme yang mungkin corrupt
+// Reset localStorage theme
 localStorage.removeItem('kc_theme');
 
 // ─── Storage Helpers ───────────────────────────────────────
@@ -39,19 +38,23 @@ function getPublicUrl(bucket, path) {
 // ─── Auth Helpers ──────────────────────────────────────────
 async function getSession() {
   if (!supabase) return null;
-  const { data } = await supabase.auth.getSession();
-  return data.session;
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session;
+  } catch(e) { return null; }
 }
 
 async function getCurrentUser() {
   const session = await getSession();
   if (!session) return null;
-  const { data } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', session.user.id)
-    .single();
-  return data;
+  try {
+    const { data } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+    return data;
+  } catch(e) { return null; }
 }
 
 // ─── XP & Level Helper ─────────────────────────────────────
