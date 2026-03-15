@@ -11,6 +11,22 @@
     var SUPABASE_URL = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
   </script>
+
+  <script>
+    // Load saved theme immediately before page renders
+    (function() {
+      try {
+        var saved = localStorage.getItem('kc_theme');
+        if (saved) {
+          var theme = JSON.parse(saved);
+          var root = document.documentElement;
+          Object.keys(theme).forEach(function(k) {
+            if (theme[k]) root.style.setProperty(k, theme[k]);
+          });
+        }
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -46,13 +62,13 @@
     <!-- Sidebar -->
     <aside class="devpanel-sidebar">
       <div class="dp-nav-title">Dev Panel</div>
-      <div class="dp-nav-item active" onclick="showSection('assets')"><span>🖼️</span> Assets</div>
-      <div class="dp-nav-item" onclick="showSection('banners')"><span>🎠</span> Banners</div>
-      <div class="dp-nav-item" onclick="showSection('games')"><span>🎮</span> Games</div>
-      <div class="dp-nav-item" onclick="showSection('books')"><span>📚</span> Books</div>
-      <div class="dp-nav-item" onclick="showSection('users')"><span>👥</span> Users & XP</div>
-      <div class="dp-nav-item" onclick="showSection('leaderboard')"><span>🏆</span> Leaderboard</div>
-      <div class="dp-nav-item" onclick="showSection('theme')"><span>🎨</span> Theme</div>
+      <div class="dp-nav-item active" onclick="showSection('assets', this)"><span>🖼️</span> Assets</div>
+      <div class="dp-nav-item" onclick="showSection('banners', this)"><span>🎠</span> Banners</div>
+      <div class="dp-nav-item" onclick="showSection('games', this)"><span>🎮</span> Games</div>
+      <div class="dp-nav-item" onclick="showSection('books', this)"><span>📚</span> Books</div>
+      <div class="dp-nav-item" onclick="showSection('users', this)"><span>👥</span> Users & XP</div>
+      <div class="dp-nav-item" onclick="showSection('leaderboard', this)"><span>🏆</span> Leaderboard</div>
+      <div class="dp-nav-item" onclick="showSection('theme', this)"><span>🎨</span> Theme</div>
     </aside>
 
     <!-- Main Content -->
@@ -446,11 +462,12 @@ async function checkDevAccess() {
 }
 
 // ─── Section Switch ─────────────────────────────────────────
-function showSection(name) {
+function showSection(name, el) {
   document.querySelectorAll('.dp-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.dp-nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById(`section-${name}`).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const section = document.getElementById('section-' + name);
+  if (section) section.classList.add('active');
+  if (el) el.classList.add('active');
 }
 
 // ─── Toast Notification ─────────────────────────────────────
@@ -882,7 +899,7 @@ function applyColor(varName, value) {
 }
 
 function saveTheme() {
-  const vars = ['--cyan','--red','--gold','--bg-deep','--bg-card'];
+  const vars = ['--cyan','--red','--gold','--bg-deep','--bg-dark','--bg-card','--bg-card2','--border','--text','--text-dim'];
   const theme = {};
   vars.forEach(v => {
     theme[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -897,9 +914,9 @@ function resetTheme() {
     '--cyan':'#00d4ff','--red':'#ff2d55',
     '--gold':'#ffd700','--bg-deep':'#070b16','--bg-card':'#0d1526'
   };
-  Object.entries(defaults).forEach(([k,v]) => {
+  Object.entries(defaults).forEach(([k, v]) => {
     document.documentElement.style.setProperty(k, v);
-    const inputId = `color-${k.replace('--','')}`;
+    const inputId = 'color-' + k.replace('--', '');
     const inp = document.getElementById(inputId);
     if (inp) inp.value = v;
   });
@@ -911,13 +928,17 @@ function loadSavedTheme() {
   if (!saved) return;
   try {
     const theme = JSON.parse(saved);
-    Object.entries(theme).forEach(([k,v]) => {
+    Object.entries(theme).forEach(([k, v]) => {
+      if (!v) return;
       document.documentElement.style.setProperty(k, v);
-      const inputId = `color-${k.replace('--','').replace(/-([a-z])/g, (_,c) => c)}`;
+      // Input IDs use format: color-cyan, color-red, color-bg-deep, color-bg-card, color-gold
+      const inputId = 'color-' + k.replace('--', '');
       const inp = document.getElementById(inputId);
       if (inp) inp.value = v;
     });
-  } catch {}
+  } catch(e) {
+    console.warn('Theme load error:', e);
+  }
 }
 
 // ─── Close Modal ─────────────────────────────────────────────
@@ -926,6 +947,7 @@ function closeDpModal(id) {
 }
 
 // ─── Init ────────────────────────────────────────────────────
+loadSavedTheme();
 checkDevAccess();
 </script>
 </body>
