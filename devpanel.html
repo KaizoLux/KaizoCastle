@@ -5,31 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dev Panel — Kaizo Castle</title>
   <link rel="stylesheet" href="css/style.css">
-
-  <script>
-    var SUPABASE_URL = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
-  </script>
-  <script>
-    // Apply saved theme SEBELUM render
-    (function(){
-      try {
-        var t = localStorage.getItem('kc_theme');
-        if(!t) return;
-        var theme = JSON.parse(t);
-        var r = document.documentElement;
-        // Hanya apply hex colors
-        Object.keys(theme).forEach(function(k){
-          if(theme[k] && /^#[0-9a-fA-F]{3,6}$/.test(theme[k])) r.style.setProperty(k, theme[k]);
-        });
-        // Hitung derived vars
-        function h2rgba(hex,a){hex=hex.replace('#','');if(hex.length==3)hex=hex.split('').map(function(c){return c+c}).join('');var r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);return 'rgba('+r+','+g+','+b+','+a+')';}
-        function darken(hex,f){hex=hex.replace('#','');if(hex.length==3)hex=hex.split('').map(function(c){return c+c}).join('');var r=Math.min(255,Math.round(parseInt(hex.slice(0,2),16)*f)),g=Math.min(255,Math.round(parseInt(hex.slice(2,4),16)*f)),b=Math.min(255,Math.round(parseInt(hex.slice(4,6),16)*f));return '#'+[r,g,b].map(function(v){return v.toString(16).padStart(2,'0')}).join('');}
-        if(theme['--cyan']){r.style.setProperty('--cyan-dim',darken(theme['--cyan'],0.6));r.style.setProperty('--glow-cyan','0 0 20px '+h2rgba(theme['--cyan'],0.33)+', 0 0 40px '+h2rgba(theme['--cyan'],0.13));r.style.setProperty('--border-glow',h2rgba(theme['--cyan'],0.2));}
-        if(theme['--red']){r.style.setProperty('--glow-red','0 0 20px '+h2rgba(theme['--red'],0.33));}
-      } catch(e){}
-    })();
-  </script>
 </head>
 <body>
 
@@ -65,13 +40,13 @@
     <!-- Sidebar -->
     <aside class="devpanel-sidebar">
       <div class="dp-nav-title">Dev Panel</div>
-      <div class="dp-nav-item active" onclick="showSection('assets',this)"><span>🖼️</span> Assets</div>
-      <div class="dp-nav-item" onclick="showSection('banners',this)"><span>🎠</span> Banners</div>
-      <div class="dp-nav-item" onclick="showSection('games',this)"><span>🎮</span> Games</div>
-      <div class="dp-nav-item" onclick="showSection('books',this)"><span>📚</span> Books</div>
-      <div class="dp-nav-item" onclick="showSection('users',this)"><span>👥</span> Users & XP</div>
-      <div class="dp-nav-item" onclick="showSection('leaderboard',this)"><span>🏆</span> Leaderboard</div>
-      <div class="dp-nav-item" onclick="showSection('theme',this)"><span>🎨</span> Theme</div>
+      <div class="dp-nav-item active" onclick="showSection('assets')"><span>🖼️</span> Assets</div>
+      <div class="dp-nav-item" onclick="showSection('banners')"><span>🎠</span> Banners</div>
+      <div class="dp-nav-item" onclick="showSection('games')"><span>🎮</span> Games</div>
+      <div class="dp-nav-item" onclick="showSection('books')"><span>📚</span> Books</div>
+      <div class="dp-nav-item" onclick="showSection('users')"><span>👥</span> Users & XP</div>
+      <div class="dp-nav-item" onclick="showSection('leaderboard')"><span>🏆</span> Leaderboard</div>
+      <div class="dp-nav-item" onclick="showSection('theme')"><span>🎨</span> Theme</div>
     </aside>
 
     <!-- Main Content -->
@@ -233,55 +208,42 @@
       <!-- ─── THEME ──────────────────────────────────────────── -->
       <div id="section-theme" class="dp-section">
         <div class="dp-section-title">🎨 Theme Control</div>
+        <div id="themeStatus" class="status-bar"></div>
+
         <div class="dp-card">
-          <div class="dp-card-title">Warna Website</div>
-          <p style="color:var(--green);font-size:12px;margin-bottom:16px;background:rgba(0,255,136,0.08);padding:8px 12px;border-radius:6px;border:1px solid rgba(0,255,136,0.2)">
-            ✅ Setelah ganti warna → klik <b>💾 Simpan Theme</b> agar berlaku di semua halaman
+          <div class="dp-card-title">Color Variables</div>
+          <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px">
+            Changes apply immediately on this page. Save to persist via localStorage.
           </p>
           <div class="color-swatch-grid">
             <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-cyan" value="#00d4ff" oninput="applyColor('--cyan',this.value)">
-              <label>Aksen Cyan</label>
+              <input type="color" class="color-swatch-preview" id="color-cyan" value="#00d4ff"
+                oninput="applyColor('--cyan',this.value)">
+              <label>Accent Cyan</label>
             </div>
             <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-red" value="#ff2d55" oninput="applyColor('--red',this.value)">
-              <label>Aksen Merah</label>
+              <input type="color" class="color-swatch-preview" id="color-red" value="#ff2d55"
+                oninput="applyColor('--red',this.value)">
+              <label>Accent Red</label>
             </div>
             <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-gold" value="#ffd700" oninput="applyColor('--gold',this.value)">
+              <input type="color" class="color-swatch-preview" id="color-gold" value="#ffd700"
+                oninput="applyColor('--gold',this.value)">
               <label>XP Gold</label>
             </div>
             <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-bg-deep" value="#070b16" oninput="applyColor('--bg-deep',this.value)">
-              <label>BG Utama</label>
+              <input type="color" class="color-swatch-preview" id="color-bg-deep" value="#070b16"
+                oninput="applyColor('--bg-deep',this.value)">
+              <label>BG Deep</label>
             </div>
             <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-bg-dark" value="#0a0f1e" oninput="applyColor('--bg-dark',this.value)">
-              <label>BG Gelap</label>
-            </div>
-            <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-bg-card" value="#0d1526" oninput="applyColor('--bg-card',this.value)">
+              <input type="color" class="color-swatch-preview" id="color-bg-card" value="#0d1526"
+                oninput="applyColor('--bg-card',this.value)">
               <label>Card BG</label>
-            </div>
-            <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-bg-card2" value="#111a2e" oninput="applyColor('--bg-card2',this.value)">
-              <label>Card BG 2</label>
-            </div>
-            <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-border" value="#1a2a45" oninput="applyColor('--border',this.value)">
-              <label>Border</label>
-            </div>
-            <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-text" value="#e0e8ff" oninput="applyColor('--text',this.value)">
-              <label>Teks Utama</label>
-            </div>
-            <div class="color-swatch">
-              <input type="color" class="color-swatch-preview" id="color-text-dim" value="#7a91b8" oninput="applyColor('--text-dim',this.value)">
-              <label>Teks Redup</label>
             </div>
           </div>
           <div class="dp-actions" style="margin-top:20px">
-            <button class="btn-dp btn-dp-green" onclick="saveTheme()">💾 Simpan Theme</button>
+            <button class="btn-dp btn-dp-green" onclick="saveTheme()">💾 Save Theme</button>
             <button class="btn-dp btn-dp-red" onclick="resetTheme()">↩️ Reset Default</button>
           </div>
         </div>
@@ -425,8 +387,8 @@
       <button class="modal-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="login">Login</button>
-      <button class="auth-tab" data-tab="register">Register</button>
+      <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Register</button>
     </div>
     <form id="loginForm" class="auth-form active" data-form="login">
       <div class="form-group">
@@ -453,14 +415,14 @@
         <label class="form-label">Password</label>
         <input class="form-input" type="password" id="regPassword" placeholder="Min 6 characters" required>
       </div>
-      <button class="btn-submit" type="submit" id="registerBtn">Create Account</button>
+      <button class="btn-submit" type="submit" id="registerBtn">Daftar</button>
       <div class="form-error" id="registerError"></div>
     </form>
   </div>
 </div>
 
 <!-- ─── SCRIPTS ────────────────────────────────────────────── -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 
@@ -478,12 +440,11 @@ async function checkDevAccess() {
 }
 
 // ─── Section Switch ─────────────────────────────────────────
-function showSection(name, el) {
+function showSection(name) {
   document.querySelectorAll('.dp-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.dp-nav-item').forEach(n => n.classList.remove('active'));
-  var sec = document.getElementById('section-'+name);
-  if(sec) sec.classList.add('active');
-  if(el) el.classList.add('active');
+  document.getElementById(`section-${name}`).classList.add('active');
+  event.currentTarget.classList.add('active');
 }
 
 // ─── Toast Notification ─────────────────────────────────────
@@ -910,84 +871,47 @@ async function confirmWipeLeaderboard() {
 }
 
 // ─── THEME ──────────────────────────────────────────────────
-// ─── Theme helpers ─────────────────────────────────────────
-function hexToRgba(hex, alpha) {
-  hex = (hex||'#000').replace('#','');
-  if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
-  const r=parseInt(hex.slice(0,2),16)||0, g=parseInt(hex.slice(2,4),16)||0, b=parseInt(hex.slice(4,6),16)||0;
-  return 'rgba('+r+','+g+','+b+','+alpha+')';
-}
-function darkenHex(hex, factor) {
-  hex = (hex||'#000').replace('#','');
-  if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
-  const r=Math.min(255,Math.round(parseInt(hex.slice(0,2),16)*factor));
-  const g=Math.min(255,Math.round(parseInt(hex.slice(2,4),16)*factor));
-  const b=Math.min(255,Math.round(parseInt(hex.slice(4,6),16)*factor));
-  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
-}
-function applyDerivedVars(root, cyan, red) {
-  if(cyan) {
-    root.style.setProperty('--cyan-dim',    darkenHex(cyan, 0.6));
-    root.style.setProperty('--glow-cyan',   '0 0 20px '+hexToRgba(cyan,0.33)+', 0 0 40px '+hexToRgba(cyan,0.13));
-    root.style.setProperty('--border-glow', hexToRgba(cyan, 0.2));
-  }
-  if(red) {
-    root.style.setProperty('--glow-red', '0 0 20px '+hexToRgba(red,0.33));
-  }
-}
 function applyColor(varName, value) {
-  const root = document.documentElement;
-  root.style.setProperty(varName, value);
-  // Update derived vars otomatis
-  if(varName === '--cyan') applyDerivedVars(root, value, null);
-  if(varName === '--red')  applyDerivedVars(root, null, value);
+  document.documentElement.style.setProperty(varName, value);
 }
+
 function saveTheme() {
-  // Simpan HANYA hex colors — bukan rgba/glow string
-  const vars = ['--cyan','--red','--gold','--bg-deep','--bg-dark','--bg-card','--bg-card2','--border','--text','--text-dim'];
+  const vars = ['--cyan','--red','--gold','--bg-deep','--bg-card'];
   const theme = {};
-  const computed = getComputedStyle(document.documentElement);
   vars.forEach(v => {
-    const val = computed.getPropertyValue(v).trim();
-    if(val && /^#[0-9a-fA-F]{3,6}$/.test(val)) theme[v] = val;
+    theme[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   });
-  // Hapus theme lama dulu (bersihkan rgba rusak dari versi lama)
-  localStorage.removeItem('kc_theme');
   localStorage.setItem('kc_theme', JSON.stringify(theme));
-  showToast('✅ Theme tersimpan! Berlaku di semua halaman.');
+  showToast('Theme saved! Will apply on all pages.');
 }
+
 function resetTheme() {
   localStorage.removeItem('kc_theme');
   const defaults = {
-    '--cyan':'#00d4ff','--red':'#ff2d55','--gold':'#ffd700',
-    '--bg-deep':'#070b16','--bg-dark':'#0a0f1e',
-    '--bg-card':'#0d1526','--bg-card2':'#111a2e',
-    '--border':'#1a2a45','--text':'#e0e8ff','--text-dim':'#7a91b8'
+    '--cyan':'#00d4ff','--red':'#ff2d55',
+    '--gold':'#ffd700','--bg-deep':'#070b16','--bg-card':'#0d1526'
   };
-  const root = document.documentElement;
   Object.entries(defaults).forEach(([k,v]) => {
-    root.style.setProperty(k, v);
-    const inp = document.getElementById('color-'+k.replace('--',''));
-    if(inp) inp.value = v;
+    document.documentElement.style.setProperty(k, v);
+    const inputId = `color-${k.replace('--','')}`;
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = v;
   });
-  applyDerivedVars(root, defaults['--cyan'], defaults['--red']);
-  showToast('Theme direset ke default');
+  showToast('Theme reset to default');
 }
+
 function loadSavedTheme() {
+  const saved = localStorage.getItem('kc_theme');
+  if (!saved) return;
   try {
-    const saved = localStorage.getItem('kc_theme');
-    if(!saved) return;
     const theme = JSON.parse(saved);
-    const root = document.documentElement;
     Object.entries(theme).forEach(([k,v]) => {
-      // Skip jika bukan hex (hapus nilai rusak dari versi lama)
-      if(!v || !/^#[0-9a-fA-F]{3,6}$/.test(v)) return;
-      root.style.setProperty(k, v);
-      const inp = document.getElementById('color-'+k.replace('--',''));
-      if(inp) inp.value = v;
+      document.documentElement.style.setProperty(k, v);
+      const inputId = `color-${k.replace('--','').replace(/-([a-z])/g, (_,c) => c)}`;
+      const inp = document.getElementById(inputId);
+      if (inp) inp.value = v;
     });
-    applyDerivedVars(root, theme['--cyan'], theme['--red']);
-  } catch(e) { console.warn('Theme load:', e); }
+  } catch {}
 }
 
 // ─── Close Modal ─────────────────────────────────────────────

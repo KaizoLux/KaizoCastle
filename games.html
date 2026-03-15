@@ -5,28 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Games — Kaizo Castle</title>
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- KAIZO CASTLE - CONFIG (inline agar pasti terbaca) -->
-  <script>
-    var SUPABASE_URL = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
-    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
-  </script>
-
-  <script>
-    // Load saved theme immediately before page renders (dari Dev Panel)
-    (function() {
-      try {
-        var saved = localStorage.getItem('kc_theme');
-        if (saved) {
-          var theme = JSON.parse(saved);
-          var root = document.documentElement;
-          Object.keys(theme).forEach(function(k) {
-            if (theme[k]) root.style.setProperty(k, theme[k]);
-          });
-        }
-      } catch(e) {}
-    })();
-  </script>
 </head>
 <body>
 
@@ -124,7 +102,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/main.js"></script>
