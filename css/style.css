@@ -6,6 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
 
 /* ─── CSS Variables ──────────────────────────────────────── */
+/* ── Theme defaults — DO NOT use localStorage to override these on main pages ── */
 :root {
   --bg-deep:     #070b16;
   --bg-dark:     #0a0f1e;
