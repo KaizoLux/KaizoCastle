@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dev Panel — Kaizo Castle</title>
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- KAIZO CASTLE - CONFIG (inline agar pasti terbaca) -->
+  <script>
+    var SUPABASE_URL = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
+  </script>
 </head>
 <body>
 
@@ -387,8 +393,8 @@
       <button class="modal-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="login">Login</button>
-      <button class="auth-tab" data-tab="register">Register</button>
+      <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" data-tab="register" onclick="switchAuthTab('register')">Register</button>
     </div>
     <form id="loginForm" class="auth-form active" data-form="login">
       <div class="form-group">
@@ -415,7 +421,7 @@
         <label class="form-label">Password</label>
         <input class="form-input" type="password" id="regPassword" placeholder="Min 6 characters" required>
       </div>
-      <button class="btn-submit" type="submit" id="registerBtn">Create Account</button>
+      <button class="btn-submit" type="submit" id="registerBtn">Daftar</button>
       <div class="form-error" id="registerError"></div>
     </form>
   </div>
