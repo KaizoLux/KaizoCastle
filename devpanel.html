@@ -237,6 +237,9 @@
           <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px">
             Changes apply immediately on this page. Save to persist via localStorage.
           </p>
+          <p style="color:var(--text-dim);font-size:12px;margin-bottom:12px">
+            ⚠️ Setelah ganti warna, klik <b>💾 Save Theme</b> agar berlaku di semua halaman.
+          </p>
           <div class="color-swatch-grid">
             <div class="color-swatch">
               <input type="color" class="color-swatch-preview" id="color-cyan" value="#00d4ff"
@@ -256,12 +259,37 @@
             <div class="color-swatch">
               <input type="color" class="color-swatch-preview" id="color-bg-deep" value="#070b16"
                 oninput="applyColor('--bg-deep',this.value)">
-              <label>BG Deep</label>
+              <label>BG Utama</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-bg-dark" value="#0a0f1e"
+                oninput="applyColor('--bg-dark',this.value)">
+              <label>BG Gelap</label>
             </div>
             <div class="color-swatch">
               <input type="color" class="color-swatch-preview" id="color-bg-card" value="#0d1526"
                 oninput="applyColor('--bg-card',this.value)">
               <label>Card BG</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-bg-card2" value="#111a2e"
+                oninput="applyColor('--bg-card2',this.value)">
+              <label>Card BG 2</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-border" value="#1a2a45"
+                oninput="applyColor('--border',this.value)">
+              <label>Border</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-text" value="#e0e8ff"
+                oninput="applyColor('--text',this.value)">
+              <label>Teks Utama</label>
+            </div>
+            <div class="color-swatch">
+              <input type="color" class="color-swatch-preview" id="color-text-dim" value="#7a91b8"
+                oninput="applyColor('--text-dim',this.value)">
+              <label>Teks Redup</label>
             </div>
           </div>
           <div class="dp-actions" style="margin-top:20px">
@@ -894,25 +922,75 @@ async function confirmWipeLeaderboard() {
 }
 
 // ─── THEME ──────────────────────────────────────────────────
+// ─── Hex color helpers ──────────────────────────────────────
+function hexToRgba(hex, alpha) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const r = parseInt(hex.slice(0,2),16);
+  const g = parseInt(hex.slice(2,4),16);
+  const b = parseInt(hex.slice(4,6),16);
+  if (isNaN(r)||isNaN(g)||isNaN(b)) return 'rgba(0,0,0,'+alpha+')';
+  return 'rgba('+r+','+g+','+b+','+alpha+')';
+}
+
+function darkenHex(hex, factor) {
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const r = Math.round(parseInt(hex.slice(0,2),16) * factor);
+  const g = Math.round(parseInt(hex.slice(2,4),16) * factor);
+  const b = Math.round(parseInt(hex.slice(4,6),16) * factor);
+  return '#'+[r,g,b].map(v=>Math.min(255,v).toString(16).padStart(2,'0')).join('');
+}
+
 function applyColor(varName, value) {
-  document.documentElement.style.setProperty(varName, value);
+  const root = document.documentElement;
+  root.style.setProperty(varName, value);
+
+  // Otomatis update semua variabel turunan
+  if (varName === '--cyan') {
+    root.style.setProperty('--cyan-dim',    darkenHex(value, 0.6));
+    root.style.setProperty('--glow-cyan',   '0 0 20px '+hexToRgba(value,0.33)+', 0 0 40px '+hexToRgba(value,0.13));
+    root.style.setProperty('--border-glow', hexToRgba(value, 0.2));
+  }
+  if (varName === '--red') {
+    root.style.setProperty('--glow-red', '0 0 20px '+hexToRgba(value,0.33));
+  }
 }
 
 function saveTheme() {
-  const vars = ['--cyan','--red','--gold','--bg-deep','--bg-dark','--bg-card','--bg-card2','--border','--text','--text-dim'];
+  const vars = [
+    '--cyan','--cyan-dim','--red','--gold',
+    '--bg-deep','--bg-dark','--bg-card','--bg-card2',
+    '--border','--text','--text-dim',
+    '--glow-cyan','--glow-red','--border-glow'
+  ];
   const theme = {};
+  const computed = getComputedStyle(document.documentElement);
   vars.forEach(v => {
-    theme[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+    const val = computed.getPropertyValue(v).trim();
+    if (val) theme[v] = val;
   });
   localStorage.setItem('kc_theme', JSON.stringify(theme));
-  showToast('Theme saved! Will apply on all pages.');
+  showToast('✅ Theme tersimpan! Akan berlaku di semua halaman.');
 }
 
 function resetTheme() {
   localStorage.removeItem('kc_theme');
   const defaults = {
-    '--cyan':'#00d4ff','--red':'#ff2d55',
-    '--gold':'#ffd700','--bg-deep':'#070b16','--bg-card':'#0d1526'
+    '--cyan':       '#00d4ff',
+    '--cyan-dim':   '#0090b0',
+    '--red':        '#ff2d55',
+    '--gold':       '#ffd700',
+    '--bg-deep':    '#070b16',
+    '--bg-dark':    '#0a0f1e',
+    '--bg-card':    '#0d1526',
+    '--bg-card2':   '#111a2e',
+    '--border':     '#1a2a45',
+    '--text':       '#e0e8ff',
+    '--text-dim':   '#7a91b8',
+    '--glow-cyan':  '0 0 20px rgba(0,212,255,0.33), 0 0 40px rgba(0,212,255,0.13)',
+    '--glow-red':   '0 0 20px rgba(255,45,85,0.33)',
+    '--border-glow':'rgba(0,212,255,0.2)'
   };
   Object.entries(defaults).forEach(([k, v]) => {
     document.documentElement.style.setProperty(k, v);
@@ -928,13 +1006,17 @@ function loadSavedTheme() {
   if (!saved) return;
   try {
     const theme = JSON.parse(saved);
+    const root = document.documentElement;
     Object.entries(theme).forEach(([k, v]) => {
       if (!v) return;
-      document.documentElement.style.setProperty(k, v);
-      // Input IDs use format: color-cyan, color-red, color-bg-deep, color-bg-card, color-gold
-      const inputId = 'color-' + k.replace('--', '');
-      const inp = document.getElementById(inputId);
-      if (inp) inp.value = v;
+      root.style.setProperty(k, v);
+      // Only simple hex colors can be set in color picker inputs
+      // Skip glow/rgba values (they start with '0' or 'rgba')
+      if (v.startsWith('#')) {
+        const inputId = 'color-' + k.replace('--', '');
+        const inp = document.getElementById(inputId);
+        if (inp) inp.value = v;
+      }
     });
   } catch(e) {
     console.warn('Theme load error:', e);
