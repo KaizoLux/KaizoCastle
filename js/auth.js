@@ -74,16 +74,19 @@ async function initAuthUI() {
   const devIcon    = document.getElementById('devIcon');
   if (!profileBtn) return;
 
-  // Default state dulu
-  profileBtn.innerHTML  = '👤';
+  // Set onclick LANGSUNG tanpa tunggu supabase
+  // Ini yang bikin tombol selalu bisa diklik
   profileBtn.style.cursor = 'pointer';
-  profileBtn.onclick    = () => openAuthModal('login');
+  profileBtn.onclick = () => openAuthModal('login');
   if (devIcon) devIcon.style.display = 'none';
 
+  // Cek user session (async, tidak blocking onclick di atas)
   try {
+    await _waitClient();
     const user = await getCurrentUser();
-    if (!user) return;
+    if (!user) return; // tidak login, biarkan onclick ke openAuthModal
 
+    // User sudah login — update tampilan
     profileBtn.innerHTML = `
       <div class="user-avatar-wrap">
         <div class="user-avatar">${(user.username||'U').charAt(0).toUpperCase()}</div>
@@ -97,6 +100,7 @@ async function initAuthUI() {
     }
   } catch (e) {
     console.warn('initAuthUI:', e.message);
+    // Gagal cek session - tombol tetap bisa diklik untuk buka login modal
   }
 }
 
@@ -217,8 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('authModal')?.addEventListener('click', function(e) {
     if (e.target === this) closeAuthModal();
   });
-  // Init UI setelah supabase siap
-  _waitClient()
-    .then(() => initAuthUI())
-    .catch(err => console.warn('Supabase not ready:', err.message));
+  // Panggil initAuthUI langsung - di dalamnya sudah ada fallback
+  initAuthUI();
 });
