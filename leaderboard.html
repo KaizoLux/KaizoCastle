@@ -110,6 +110,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  // Fallback kalau CDN pertama gagal
+  if (!window.supabase || !window.supabase.createClient) {
+    document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>');
+  }
+</script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/main.js"></script>
