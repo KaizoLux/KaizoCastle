@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-    const SUPABASE_URL = "https://wfvcsmrnbkfapyekwdqd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY";
-  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dev Panel — Kaizo Castle</title>
@@ -427,12 +423,11 @@
 
 <!-- ─── SCRIPTS ────────────────────────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-  // Fallback kalau CDN pertama gagal
-  if (!window.supabase || !window.supabase.createClient) {
-    document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>');
-  }
-</script>
+  <script>
+    if (!window.supabase || !window.supabase.createClient) {
+      document.write('<scr'+'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></scr'+'ipt>');
+    }
+  </script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 
