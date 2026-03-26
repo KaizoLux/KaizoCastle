@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kaizo Castle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ░░░ NAVBAR ░░░ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+
+      <!-- Logo -->
+      <a href="#" class="nav-logo">
+        <div class="logo-emblem">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+            <polygon points="20,7 33,14 33,26 20,33 7,26 7,14" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
+            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="serif" font-size="14" fill="#c9a84c" font-weight="bold">K</text>
+          </svg>
+        </div>
+        <span class="logo-text">Kaizo <span class="logo-accent">Castle</span></span>
+      </a>
+
+      <!-- Hamburger (mobile) -->
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Menu -->
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#" class="nav-link active">Home</a></li>
+        <li><a href="#games" class="nav-link">Games</a></li>
+        <li><a href="#books" class="nav-link">Books</a></li>
+        <li><a href="#" class="nav-link">Profile</a></li>
+        <li><a href="#" class="nav-cta">Enter Castle</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ░░░ HERO ░░░ -->
+  <section class="hero" id="home">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">Welcome to the realm</p>
+      <h1 class="hero-title">
+        Kaizo<br />
+        <span class="hero-title-accent">Castle</span>
+      </h1>
+      <p class="hero-subtitle">
+        A fortress of games &amp; knowledge.<br />
+        Conquer challenges. Collect wisdom.
+      </p>
+      <div class="hero-actions">
+        <a href="#games" class="btn-primary">Explore Games</a>
+        <a href="#books" class="btn-ghost">Browse Library</a>
+      </div>
+    </div>
+
+    <!-- Decorative corner runes -->
+    <div class="hero-corner hero-corner--tl"></div>
+    <div class="hero-corner hero-corner--tr"></div>
+    <div class="hero-corner hero-corner--bl"></div>
+    <div class="hero-corner hero-corner--br"></div>
+
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ░░░ MAIN CONTENT ░░░ -->
+  <main class="main-content">
+
+    <!-- Divider -->
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <div class="divider-icon">⚔</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ░░░ GAME SECTION ░░░ -->
+    <section class="section" id="games">
+      <div class="section-header">
+        <p class="section-label">The Arena</p>
+        <h2 class="section-title">Games</h2>
+        <p class="section-desc">Choose your battle. Every game is a new quest.</p>
+      </div>
+
+      <div class="cards-grid">
+        <!-- Empty game cards -->
+        <div class="card card--game">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">🎮</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Game Title</h3>
+              <p class="card-text">Game description will appear here once content is added.</p>
+              <div class="card-footer">
+                <span class="card-badge">Adventure</span>
+                <button class="card-btn" disabled>Play</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--game">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">🕹️</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Game Title</h3>
+              <p class="card-text">Game description will appear here once content is added.</p>
+              <div class="card-footer">
+                <span class="card-badge">Puzzle</span>
+                <button class="card-btn" disabled>Play</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--game">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">⚔️</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Game Title</h3>
+              <p class="card-text">Game description will appear here once content is added.</p>
+              <div class="card-footer">
+                <span class="card-badge">Action</span>
+                <button class="card-btn" disabled>Play</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--game">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">🏰</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Game Title</h3>
+              <p class="card-text">Game description will appear here once content is added.</p>
+              <div class="card-footer">
+                <span class="card-badge">Strategy</span>
+                <button class="card-btn" disabled>Play</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-footer">
+        <a href="#" class="btn-outline">View All Games →</a>
+      </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <div class="divider-icon">📖</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ░░░ BOOK SECTION ░░░ -->
+    <section class="section" id="books">
+      <div class="section-header">
+        <p class="section-label">The Library</p>
+        <h2 class="section-title">Books</h2>
+        <p class="section-desc">Ancient tomes and modern knowledge. Power through learning.</p>
+      </div>
+
+      <div class="cards-grid cards-grid--books">
+        <!-- Empty book cards -->
+        <div class="card card--book">
+          <div class="card-inner">
+            <div class="book-spine"></div>
+            <div class="card-thumb card-thumb--book">
+              <div class="card-thumb-icon">📚</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Book Title</h3>
+              <p class="card-author">Author Name</p>
+              <p class="card-text">Book description will appear here once content is added to the library.</p>
+              <div class="card-footer">
+                <span class="card-badge card-badge--book">Fantasy</span>
+                <button class="card-btn card-btn--book" disabled>Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--book">
+          <div class="card-inner">
+            <div class="book-spine"></div>
+            <div class="card-thumb card-thumb--book">
+              <div class="card-thumb-icon">📖</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Book Title</h3>
+              <p class="card-author">Author Name</p>
+              <p class="card-text">Book description will appear here once content is added to the library.</p>
+              <div class="card-footer">
+                <span class="card-badge card-badge--book">Sci-Fi</span>
+                <button class="card-btn card-btn--book" disabled>Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--book">
+          <div class="card-inner">
+            <div class="book-spine"></div>
+            <div class="card-thumb card-thumb--book">
+              <div class="card-thumb-icon">🗺️</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Book Title</h3>
+              <p class="card-author">Author Name</p>
+              <p class="card-text">Book description will appear here once content is added to the library.</p>
+              <div class="card-footer">
+                <span class="card-badge card-badge--book">Adventure</span>
+                <button class="card-btn card-btn--book" disabled>Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card--book">
+          <div class="card-inner">
+            <div class="book-spine"></div>
+            <div class="card-thumb card-thumb--book">
+              <div class="card-thumb-icon">⚗️</div>
+            </div>
+            <div class="card-body">
+              <div class="card-tag">Coming Soon</div>
+              <h3 class="card-title">Book Title</h3>
+              <p class="card-author">Author Name</p>
+              <p class="card-text">Book description will appear here once content is added to the library.</p>
+              <div class="card-footer">
+                <span class="card-badge card-badge--book">Lore</span>
+                <button class="card-btn card-btn--book" disabled>Read</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-footer">
+        <a href="#" class="btn-outline btn-outline--book">Browse Full Library →</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ░░░ FOOTER ░░░ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-text">Kaizo <span class="logo-accent">Castle</span></span>
+      </div>
+      <p class="footer-copy">© 2025 Kaizo Castle. All rights reserved.</p>
+      <div class="footer-rune">⬡</div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav toggle
+    const toggle = document.getElementById('navToggle');
+    const menu = document.getElementById('navMenu');
+    toggle.addEventListener('click', () => {
+      menu.classList.toggle('open');
+      toggle.classList.toggle('active');
+    });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          menu.classList.remove('open');
+          toggle.classList.remove('active');
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('.navbar');
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+  </script>
+</body>
+</html>
