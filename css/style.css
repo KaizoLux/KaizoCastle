@@ -788,3 +788,146 @@ img { max-width: 100%; display: block; }
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* ================================================
+   SWIPER HERO SLIDER — tambahan Stage 3
+   Hanya override yang diperlukan, tidak merusak desain
+   ================================================ */
+
+/* Wrapper swiper memenuhi section hero-banner */
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+/* Setiap slide: posisikan relatif agar img + overlay + content bisa ditumpuk */
+.swiper .swiper-slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Gambar background tiap slide */
+.swiper .hero-banner__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  /* Efek zoom-out saat slide aktif */
+  transform: scale(1.06);
+  transition: transform 5s ease;
+}
+
+.swiper .swiper-slide-active .hero-banner__img {
+  transform: scale(1);
+}
+
+/* Overlay variasi per slide */
+.hero-banner__overlay--game {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(10, 30, 30, 0.65) 55%,
+      rgba(11, 12, 15, 0.93) 100%
+    ) !important;
+}
+
+.hero-banner__overlay--book {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(30, 18, 10, 0.65) 55%,
+      rgba(11, 12, 15, 0.93) 100%
+    ) !important;
+}
+
+/* Warna aksen judul per slide */
+.hero-banner__title-cyan  { color: var(--clr-game);  text-shadow: 0 0 32px rgba(63, 212, 196, 0.5), 0 2px 20px rgba(0,0,0,0.8); display: block; }
+.hero-banner__title-amber { color: var(--clr-book);  text-shadow: 0 0 32px rgba(224, 123, 57, 0.5),  0 2px 20px rgba(0,0,0,0.8); display: block; }
+
+/* Animasi teks masuk saat slide aktif */
+.swiper .swiper-slide .hero-banner__content {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s;
+}
+
+.swiper .swiper-slide-active .hero-banner__content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tombol variasi warna per slide */
+.hero-banner__btn--game {
+  background: var(--clr-game);
+  box-shadow: 0 4px 24px rgba(63, 212, 196, 0.35);
+}
+
+.hero-banner__btn--game:hover {
+  background: #5fe8d8;
+  box-shadow: 0 6px 36px rgba(63, 212, 196, 0.55);
+}
+
+.hero-banner__btn--book {
+  background: var(--clr-book);
+  box-shadow: 0 4px 24px rgba(224, 123, 57, 0.35);
+}
+
+.hero-banner__btn--book:hover {
+  background: #f08c4a;
+  box-shadow: 0 6px 36px rgba(224, 123, 57, 0.55);
+}
+
+/* ── Navigation Arrows ──────────────────────── */
+.swiper-button-prev,
+.swiper-button-next {
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid rgba(201, 168, 76, 0.3) !important;
+  border-radius: 50% !important;
+  backdrop-filter: blur(8px);
+  transition: background 0.25s, border-color 0.25s, transform 0.2s !important;
+  top: 50% !important;
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background: rgba(201, 168, 76, 0.2) !important;
+  border-color: var(--clr-gold) !important;
+  transform: translateY(-50%) scale(1.08) !important;
+}
+
+/* Override warna icon panah bawaan Swiper */
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 16px !important;
+  color: var(--clr-gold) !important;
+  font-weight: 700 !important;
+}
+
+/* ── Pagination Dots ────────────────────────── */
+.swiper-pagination {
+  bottom: 22px !important;
+}
+
+.swiper-pagination .swiper-pagination-bullet {
+  width: 10px !important;
+  height: 10px !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  opacity: 1 !important;
+  transition: background 0.3s, transform 0.3s, width 0.3s !important;
+  border-radius: 5px !important;
+}
+
+.swiper-pagination .swiper-pagination-bullet-active {
+  background: var(--clr-gold) !important;
+  width: 28px !important;
+  box-shadow: 0 0 10px rgba(201, 168, 76, 0.6) !important;
+}
