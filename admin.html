@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Kaizo Castle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    #auth-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    #auth-overlay.active { display: flex; }
+    #auth-modal {
+      background: #1a1d28;
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      margin: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    }
+    #auth-modal h2 {
+      font-family: 'Cinzel', serif;
+      color: #c9a84c;
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    #auth-modal p.auth-sub {
+      color: #5e6278;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    #auth-modal input {
+      width: 100%;
+      padding: 12px 14px;
+      background: #10121a;
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 8px;
+      color: #eef0f8;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #auth-modal input:focus { border-color: #c9a84c; }
+    #auth-modal input::placeholder { color: #5e6278; }
+    #btn-signin {
+      width: 100%;
+      padding: 12px;
+      background: #c9a84c;
+      color: #0b0c0f;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #btn-signin:hover { background: #e2c470; box-shadow: 0 0 20px rgba(201,168,76,0.35); }
+    #btn-signup {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #c9a84c;
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      margin-bottom: 18px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #btn-signup:hover { background: rgba(201,168,76,0.1); border-color: #c9a84c; }
+    #auth-message {
+      text-align: center;
+      font-size: 0.82rem;
+      min-height: 20px;
+      margin-bottom: 4px;
+    }
+    #auth-message.success { color: #3fd4c4; }
+    #auth-message.error   { color: #e07b39; }
+    #btn-close-modal {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      color: #5e6278;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      padding: 4px;
+    }
+    #btn-close-modal:hover { color: #c8cad8; }
+    #nav-user-area {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-left: 12px;
+    }
+    #nav-user-area.active { display: flex; }
+    #nav-user-email {
+      font-size: 0.8rem;
+      color: #c9a84c;
+      font-weight: 600;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #btn-signout {
+      padding: 7px 14px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 8px;
+      color: #c9a84c;
+      font-size: 0.78rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.2s;
+    }
+    #btn-signout:hover { background: rgba(201,168,76,0.2); }
+    #btn-admin {
+      display: none;
+      padding: 7px 14px;
+      background: rgba(63,212,196,0.1);
+      border: 1px solid rgba(63,212,196,0.35);
+      border-radius: 8px;
+      color: #3fd4c4;
+      font-size: 0.78rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.2s;
+    }
+    #btn-admin.active { display: inline-block; }
+    #btn-admin:hover  { background: rgba(63,212,196,0.2); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar scrolled">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-emblem">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+            <polygon points="20,7 33,14 33,26 20,33 7,26 7,14" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
+            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="serif" font-size="14" fill="#c9a84c" font-weight="bold">K</text>
+          </svg>
+        </div>
+        <span class="logo-text">Kaizo <span class="logo-accent">Castle</span></span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="index.html#games" class="nav-link">Games</a></li>
+        <li><a href="index.html#books" class="nav-link">Books</a></li>
+        <li><a href="#" class="nav-link active">Admin</a></li>
+      </ul>
+      <a href="#" class="nav-cta" id="btn-open-modal">Enter Castle</a>
+      <div id="nav-user-area">
+        <span id="nav-user-email"></span>
+        <button id="btn-admin" onclick="window.location.href='admin.html'">⚙ Admin Panel</button>
+        <button id="btn-signout" onclick="signOut()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div id="auth-overlay">
+    <div id="auth-modal">
+      <h2>🏰 Enter the Castle</h2>
+      <p class="auth-sub">Login atau daftar untuk melanjutkan</p>
+      <input type="email" id="auth-email" placeholder="Email kamu" autocomplete="email" />
+      <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" />
+      <button id="btn-signin" onclick="signIn()">Login</button>
+      <button id="btn-signup" onclick="signUp()">Daftar Akun Baru</button>
+      <p id="auth-message"></p>
+      <button id="btn-close-modal" onclick="closeModal()">✕ Tutup</button>
+    </div>
+  </div>
+
+  <main class="main-content" style="padding-top: 72px;">
+
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <div class="divider-icon">⚙</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <section class="section" id="admin-overview">
+      <div class="section-header">
+        <p class="section-label">Admin Panel</p>
+        <h2 class="section-title">Dashboard</h2>
+        <p class="section-desc">Kelola konten Kaizo Castle dari sini</p>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">🎮</div>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Kelola Games</h3>
+              <p class="card-text">Tambah, edit, atau hapus konten game yang tampil di halaman utama.</p>
+              <div class="card-footer">
+                <span class="card-badge">Games</span>
+                <button class="card-btn">Kelola</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">📚</div>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Kelola Books</h3>
+              <p class="card-text">Tambah, edit, atau hapus buku yang tampil di library Kaizo Castle.</p>
+              <div class="card-footer">
+                <span class="card-badge card-badge--book">Books</span>
+                <button class="card-btn card-btn--book">Kelola</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-thumb card-thumb--empty">
+              <div class="card-thumb-icon">👥</div>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Kelola Users</h3>
+              <p class="card-text">Lihat daftar pengguna terdaftar dan atur hak akses mereka.</p>
+              <div class="card-footer">
+                <span class="card-badge">Users</span>
+                <button class="card-btn">Kelola</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <div class="divider-icon">🖼</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <section class="section" id="assets-manager">
+      <div class="section-header">
+        <p class="section-label">Admin Panel</p>
+        <h2 class="section-title">Assets Manager</h2>
+        <p class="section-desc">Kelola Asset Website</p>
+      </div>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-body">
+              <h3 class="card-title">Logo Website</h3>
+              <p class="card-text">Ukuran 400×80 px</p>
+              <input type="file" accept="image/*" />
+              <button class="btn-primary">Upload</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-body">
+              <h3 class="card-title">Navbar Icon</h3>
+              <p class="card-text">Ukuran 256×256 px</p>
+              <input type="file" accept="image/*" />
+              <button class="btn-primary">Upload</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner">
+            <div class="card-body">
+              <h3 class="card-title">Banner Slider</h3>
+              <p class="card-text">Ukuran 1280×600 px</p>
+              <input type="file" accept="image/*" />
+              <button class="btn-primary">Upload</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-text">Kaizo <span class="logo-accent">Castle</span></span>
+      </div>
+      <p class="footer-copy">© 2025 Kaizo Castle. All rights reserved.</p>
+      <div class="footer-rune">⬡</div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL      = 'https://wfvcsmrnbkfapyekwdqd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';
+    const ADMIN_EMAIL       = 'rezakurniawan2604@gmail.com';
+
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const overlay      = document.getElementById('auth-overlay');
+    const btnOpenModal = document.getElementById('btn-open-modal');
+    const emailInput   = document.getElementById('auth-email');
+    const passInput    = document.getElementById('auth-password');
+    const authMessage  = document.getElementById('auth-message');
+    const navUserArea  = document.getElementById('nav-user-area');
+    const navUserEmail = document.getElementById('nav-user-email');
+    const btnAdmin     = document.getElementById('btn-admin');
+
+    btnOpenModal.addEventListener('click', (e) => {
+      e.preventDefault();
+      overlay.classList.add('active');
+      emailInput.focus();
+    });
+
+    function closeModal() {
+      overlay.classList.remove('active');
+      setMessage('', '');
+    }
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    function setMessage(text, type) {
+      authMessage.textContent = text;
+      authMessage.className   = type;
+    }
+
+    function updateUI(user) {
+      if (user) {
+        btnOpenModal.style.display = 'none';
+        navUserArea.classList.add('active');
+        navUserEmail.textContent = user.email;
+        if (user.email === ADMIN_EMAIL) {
+          btnAdmin.classList.add('active');
+        } else {
+          btnAdmin.classList.remove('active');
+        }
+      } else {
+        btnOpenModal.style.display = '';
+        navUserArea.classList.remove('active');
+        btnAdmin.classList.remove('active');
+        navUserEmail.textContent = '';
+      }
+    }
+
+    async function signUp() {
+      const email    = emailInput.value.trim();
+      const password = passInput.value;
+      if (!email || !password) { setMessage('⚠ Email dan password wajib diisi.', 'error'); return; }
+      setMessage('Mendaftarkan akun...', '');
+      const { error } = await sb.auth.signUp({ email, password });
+      if (error) { setMessage('✗ ' + error.message, 'error'); }
+      else { setMessage('✓ Akun berhasil dibuat! Silakan login.', 'success'); }
+    }
+
+    async function signIn() {
+      const email    = emailInput.value.trim();
+      const password = passInput.value;
+      if (!email || !password) { setMessage('⚠ Email dan password wajib diisi.', 'error'); return; }
+      setMessage('Masuk...', '');
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) { setMessage('✗ ' + error.message, 'error'); }
+      else { setMessage('✓ Login berhasil!', 'success'); updateUI(data.user); setTimeout(closeModal, 800); }
+    }
+
+    async function signOut() {
+      await sb.auth.signOut();
+      updateUI(null);
+    }
+
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) updateUI(data.session.user);
+    });
+
+    sb.auth.onAuthStateChange((_event, session) => {
+      updateUI(session ? session.user : null);
+    });
+
+    const toggle = document.getElementById('navToggle');
+    const menu   = document.getElementById('navMenu');
+    toggle.addEventListener('click', () => {
+      menu.classList.toggle('open');
+      toggle.classList.toggle('active');
+    });
+
+    window.addEventListener('scroll', () => {
+      document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ── Assets Manager Upload ────────────────────
+    const assetCards  = document.querySelectorAll('#assets-manager .card');
+    const assetConfig = [
+      { filename: 'logo.png'   },
+      { filename: 'icon.png'   },
+      { filename: 'banner.jpg' },
+    ];
+
+    assetCards.forEach((card, index) => {
+      const fileInput = card.querySelector('input[type="file"]');
+      const uploadBtn = card.querySelector('.btn-primary');
+
+      uploadBtn.addEventListener('click', async () => {
+        const file = fileInput.files[0];
+        if (!file) { alert('Pilih file terlebih dahulu.'); return; }
+
+        const { error } = await sb.storage
+          .from('assets')
+          .upload(assetConfig[index].filename, file, { upsert: true });
+
+        if (error) { alert('Upload gagal: ' + error.message); }
+        else { alert('Upload berhasil!'); }
+      });
+    });
+  </script>
+</body>
+</html>
