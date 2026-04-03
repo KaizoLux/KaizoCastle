@@ -576,188 +576,158 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // ╔══════════════════════════════════════════╗
-    // ║  SUPABASE CONFIG                         ║
-    // ║  Ganti dua nilai ini dengan milik kamu:  ║
-    // ║  Dapatkan di: supabase.com → Project     ║
-    // ║  Settings → API                          ║
-    // ╚══════════════════════════════════════════╝
-    const SUPABASE_URL      = 'https://your-project.supabase.co'; // ← ganti ini
-    const SUPABASE_ANON_KEY = 'your-anon-key-here';               // ← ganti ini
-    const ADMIN_EMAIL       = 'admin@kaizo.com';                  // ← email admin
+    const SUPABASE_URL      = 'https://your-project.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-key-here';
+    const ADMIN_EMAIL       = 'admin@kaizo.com';
 
-    const { createClient } = supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ── Referensi elemen DOM ─────────────────────
-    const overlay       = document.getElementById('auth-overlay');
-    const btnOpenModal  = document.getElementById('btn-open-modal');
-    const emailInput    = document.getElementById('auth-email');
-    const passInput     = document.getElementById('auth-password');
-    const authMessage   = document.getElementById('auth-message');
-    const navUserArea   = document.getElementById('nav-user-area');
-    const navUserEmail  = document.getElementById('nav-user-email');
-    const btnAdmin      = document.getElementById('btn-admin');
+    document.addEventListener('DOMContentLoaded', () => {
 
-    // ── Modal buka/tutup ─────────────────────────
-    btnOpenModal.addEventListener('click', (e) => {
-      e.preventDefault();
-      overlay.classList.add('active');
-      emailInput.focus();
-    });
+      const overlay      = document.getElementById('auth-overlay');
+      const btnOpenModal = document.getElementById('btn-open-modal');
+      const emailInput   = document.getElementById('auth-email');
+      const passInput    = document.getElementById('auth-password');
+      const authMessage  = document.getElementById('auth-message');
+      const navUserArea  = document.getElementById('nav-user-area');
+      const navUserEmail = document.getElementById('nav-user-email');
+      const btnAdmin     = document.getElementById('btn-admin');
 
-    function closeModal() {
-      overlay.classList.remove('active');
-      setMessage('', '');
-    }
-
-    // Klik di luar modal → tutup
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) closeModal();
-    });
-
-    // ── Helper tampilkan pesan ───────────────────
-    function setMessage(text, type) {
-      authMessage.textContent = text;
-      authMessage.className   = type; // 'success' atau 'error'
-    }
-
-    // ── Helper update UI setelah login/logout ────
-    function updateUI(user) {
-      if (user) {
-        // Sudah login: sembunyikan tombol Enter Castle, tampilkan user area
-        btnOpenModal.style.display  = 'none';
-        navUserArea.classList.add('active');
-        navUserEmail.textContent    = user.email;
-
-        // Tampilkan Admin Panel hanya untuk email admin
-        if (user.email === ADMIN_EMAIL) {
-          btnAdmin.classList.add('active');
-        } else {
-          btnAdmin.classList.remove('active');
-        }
-      } else {
-        // Belum login: tampilkan kembali tombol Enter Castle
-        btnOpenModal.style.display  = '';
-        navUserArea.classList.remove('active');
-        btnAdmin.classList.remove('active');
-        navUserEmail.textContent    = '';
-      }
-    }
-
-    // ── REGISTER (daftar akun baru) ──────────────
-    async function signUp() {
-      const email    = emailInput.value.trim();
-      const password = passInput.value;
-
-      if (!email || !password) {
-        setMessage('⚠ Email dan password wajib diisi.', 'error');
-        return;
-      }
-
-      setMessage('Mendaftarkan akun...', '');
-      const { error } = await sb.auth.signUp({ email, password });
-
-      if (error) {
-        setMessage('✗ ' + error.message, 'error');
-      } else {
-        setMessage('✓ Berhasil! Cek email kamu untuk konfirmasi.', 'success');
-      }
-    }
-
-    // ── LOGIN ────────────────────────────────────
-    async function signIn() {
-      const email    = emailInput.value.trim();
-      const password = passInput.value;
-
-      if (!email || !password) {
-        setMessage('⚠ Email dan password wajib diisi.', 'error');
-        return;
-      }
-
-      setMessage('Masuk...', '');
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        setMessage('✗ ' + error.message, 'error');
-      } else {
-        setMessage('✓ Login berhasil!', 'success');
-        updateUI(data.user);
-        setTimeout(closeModal, 800);
-      }
-    }
-
-    // ── LOGOUT ───────────────────────────────────
-    async function signOut() {
-      await sb.auth.signOut();
-      updateUI(null);
-    }
-
-    // ── ADMIN PANEL (placeholder) ─────────────────
-    function goToAdmin() {
-      window.location.href = 'admin.html';
-    }
-
-    // ── Cek sesi saat halaman dimuat ─────────────
-    // Kalau user sudah login sebelumnya, langsung update UI
-    sb.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        updateUI(data.session.user);
-      }
-    });
-
-    // Dengarkan perubahan status auth (login/logout dari tab lain, dll)
-    sb.auth.onAuthStateChange((_event, session) => {
-      updateUI(session ? session.user : null);
-    });
-
-    // ════════════════════════════════════════════
-    // KODE LAMA — tidak diubah
-    // ════════════════════════════════════════════
-
-    // Mobile nav toggle
-    const toggle = document.getElementById('navToggle');
-    const menu = document.getElementById('navMenu');
-    toggle.addEventListener('click', () => {
-      menu.classList.toggle('open');
-      toggle.classList.toggle('active');
-    });
-
-    // Smooth scroll for nav links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          menu.classList.remove('open');
-          toggle.classList.remove('active');
-          target.scrollIntoView({ behavior: 'smooth' });
-        }
+      btnOpenModal.addEventListener('click', (e) => {
+        e.preventDefault();
+        overlay.classList.add('active');
+        emailInput.focus();
       });
-    });
 
-    // Navbar scroll effect
-    window.addEventListener('scroll', () => {
-      const nav = document.querySelector('.navbar');
-      nav.classList.toggle('scrolled', window.scrollY > 40);
-    });
+      function closeModal() {
+        overlay.classList.remove('active');
+        setMessage('', '');
+      }
 
-    // ── Swiper Init ──────────────────────────────
-    const swiper = new Swiper(".swiper", {
-      loop: true,
-      autoplay: {
-        delay: 4000,
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true,
-      },
-      pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-      },
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+      });
+
+      function setMessage(text, type) {
+        authMessage.textContent = text;
+        authMessage.className   = type;
+      }
+
+      function updateUI(user) {
+        if (user) {
+          btnOpenModal.style.display = 'none';
+          navUserArea.classList.add('active');
+          navUserEmail.textContent   = user.email;
+          if (user.email === ADMIN_EMAIL) {
+            btnAdmin.classList.add('active');
+          } else {
+            btnAdmin.classList.remove('active');
+          }
+        } else {
+          btnOpenModal.style.display = '';
+          navUserArea.classList.remove('active');
+          btnAdmin.classList.remove('active');
+          navUserEmail.textContent   = '';
+        }
+      }
+
+      async function signUp() {
+        const email    = emailInput.value.trim();
+        const password = passInput.value;
+        if (!email || !password) {
+          setMessage('⚠ Email dan password wajib diisi.', 'error');
+          return;
+        }
+        setMessage('Mendaftarkan akun...', '');
+        const { error } = await sb.auth.signUp({ email, password });
+        if (error) {
+          setMessage('✗ ' + error.message, 'error');
+        } else {
+          setMessage('✓ Berhasil! Cek email kamu untuk konfirmasi.', 'success');
+        }
+      }
+
+      async function signIn() {
+        const email    = emailInput.value.trim();
+        const password = passInput.value;
+        if (!email || !password) {
+          setMessage('⚠ Email dan password wajib diisi.', 'error');
+          return;
+        }
+        setMessage('Masuk...', '');
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          setMessage('✗ ' + error.message, 'error');
+        } else {
+          setMessage('✓ Login berhasil!', 'success');
+          updateUI(data.user);
+          setTimeout(closeModal, 800);
+        }
+      }
+
+      async function signOut() {
+        await sb.auth.signOut();
+        updateUI(null);
+      }
+
+      function goToAdmin() {
+        window.location.href = 'admin.html';
+      }
+
+      window.signIn   = signIn;
+      window.signUp   = signUp;
+      window.signOut  = signOut;
+      window.goToAdmin = goToAdmin;
+
+      sb.auth.getSession().then(({ data }) => {
+        if (data.session) updateUI(data.session.user);
+      });
+
+      sb.auth.onAuthStateChange((_event, session) => {
+        updateUI(session ? session.user : null);
+      });
+
+      const toggle = document.getElementById('navToggle');
+      const menu   = document.getElementById('navMenu');
+      toggle.addEventListener('click', () => {
+        menu.classList.toggle('open');
+        toggle.classList.toggle('active');
+      });
+
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            e.preventDefault();
+            menu.classList.remove('open');
+            toggle.classList.remove('active');
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      window.addEventListener('scroll', () => {
+        const nav = document.querySelector('.navbar');
+        nav.classList.toggle('scrolled', window.scrollY > 40);
+      });
+
+      const swiper = new Swiper(".swiper", {
+        loop: true,
+        autoplay: {
+          delay: 4000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        },
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        },
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+      });
+
     });
   </script>
 </body>
