@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <!-- Swiper.js CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="style.css" />
 
   <!-- ── AUTH MODAL STYLES (inline minimal, tidak ubah style.css) ── -->
   <style>
@@ -582,9 +582,9 @@
     // ║  Dapatkan di: supabase.com → Project     ║
     // ║  Settings → API                          ║
     // ╚══════════════════════════════════════════╝
-    const SUPABASE_URL      = 'https://wfvcsmrnbkfapyekwdqd.supabase.co'; // ← ganti ini
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmdmNzbXJuYmtmYXB5ZWt3ZHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MTA2OTQsImV4cCI6MjA4ODk4NjY5NH0.r-uAO3yWesOahY1ke3ZTGWrmBpUVWecyDWcZCQP3ljY';               // ← ganti ini
-    const ADMIN_EMAIL       = 'rezakurniawan2604@gmail.com';                  // ← email admin
+    const SUPABASE_URL      = 'https://your-project.supabase.co'; // ← ganti ini
+    const SUPABASE_ANON_KEY = 'your-anon-key-here';               // ← ganti ini
+    const ADMIN_EMAIL       = 'admin@kaizo.com';                  // ← email admin
 
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -661,7 +661,7 @@
       if (error) {
         setMessage('✗ ' + error.message, 'error');
       } else {
-        setMessage('✓ Akun berhasil dibuat! Silakan login.', 'success');
+        setMessage('✓ Berhasil! Cek email kamu untuk konfirmasi.', 'success');
       }
     }
 
@@ -695,7 +695,7 @@
 
     // ── ADMIN PANEL (placeholder) ─────────────────
     function goToAdmin() {
-      alert('Admin Panel — akan dikembangkan di stage berikutnya.');
+      window.location.href = 'admin.html';
     }
 
     // ── Cek sesi saat halaman dimuat ─────────────
